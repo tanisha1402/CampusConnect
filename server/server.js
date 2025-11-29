@@ -19,6 +19,9 @@ app.use(express.json()); // allow backend to read JSON from requests
 const userRoutes = require('./routes/userRoutes');
 app.use('/api/users', userRoutes);
 
+const postRoutes = require('./routes/postRoutes');
+app.use('/api/posts', postRoutes);
+
 
 // 5. test route
 app.get('/', (req, res) => {
