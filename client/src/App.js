@@ -79,29 +79,6 @@ function App() {
     });
   };
 
-  // const fetchMe = async (currentToken) => {
-  //   try {
-  //     const api = axiosAuth(currentToken);
-  //     const res = await api.get('/api/users/me');
-  //     setUser(res.data);
-  //   } catch (err) {
-  //     console.error('Error fetching /me:', err);
-  //   }
-  // };
-
-  // const fetchPosts = async (currentToken) => {
-  //   try {
-  //     setIsLoadingPosts(true);
-  //     const api = axiosAuth(currentToken);
-  //     const res = await api.get('/api/posts');
-  //     setPosts(res.data);
-  //   } catch (err) {
-  //     console.error('Error fetching posts:', err);
-  //   } finally {
-  //     setIsLoadingPosts(false);
-  //   }
-  // };
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setMessage('');
@@ -124,7 +101,6 @@ function App() {
       setMessageType('success');
 
       // load posts after login
-
      // fetchPosts(receivedToken);
   
     } catch (err) {
