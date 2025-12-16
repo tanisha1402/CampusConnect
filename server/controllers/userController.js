@@ -75,3 +75,44 @@ const getMe = async (req, res) => {
 };
 
 module.exports = { registerUser, loginUser, getMe };
+
+// PUT /api/users/me
+const updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const { name, role, bio, department } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { name, role, bio, department },
+      { new: true }
+    ).select('-password');
+
+    res.json(updatedUser);
+
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json(user);
+  } catch (err) {
+    console.error("Error fetching user:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = {
+  registerUser,
+  loginUser,
+  getMe,
+  updateUserProfile,
+  getUserById
+};
+

@@ -1,6 +1,42 @@
+import { useState, useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 import loginIllustration from "../assets/login-illustration.png";
 
 export default function Login() {
+  const { login } = useContext(AuthContext);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = async () => {
+    setError("");
+
+    try {
+      const res = await fetch("http://localhost:5000/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Login failed");
+        return;
+      }
+
+      // save into context
+      login(data.user, data.token);
+
+      // optional redirect
+      window.location.href = "/dashboard";
+
+    } catch (err) {
+      setError("Server error. Try again.");
+    }
+  };
+
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-[#a8b8ff] overflow-hidden">
 
@@ -9,9 +45,8 @@ export default function Login() {
       <div className="absolute w-32 h-32 rounded-full bottom-20 right-20 bg-white/20 blur-xl" />
       <div className="absolute w-24 h-24 rounded-full top-1/2 left-1/3 bg-white/10 blur-lg" />
 
-      {/* Main Card */}
       <div className="relative z-10 flex items-center w-full max-w-4xl gap-10 p-10 border shadow-2xl bg-white/70 backdrop-blur-2xl rounded-3xl border-white/40">
-
+        
         {/* Illustration */}
         <div className="items-center justify-center flex-1 hidden md:flex">
           <img
@@ -25,27 +60,35 @@ export default function Login() {
         <div className="flex-1">
           <h1 className="mb-2 text-4xl font-bold text-slate-800">CampusConnect</h1>
 
-          <p className="mb-8 text-slate-600">
-            Welcome back! Please login to continue.
-          </p>
+          <p className="mb-8 text-slate-600">Welcome back! Please login to continue.</p>
 
           <div className="space-y-4">
 
             <input
               type="email"
               placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full p-4 bg-white border shadow-sm rounded-xl border-slate-300 text-slate-700 focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400"
             />
 
             <input
               type="password"
               placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full p-4 bg-white border shadow-sm rounded-xl border-slate-300 text-slate-700 focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400"
             />
 
+            {error && (
+              <div className="p-3 text-sm text-red-600 bg-red-100 rounded-xl">
+                {error}
+              </div>
+            )}
+
             <button
-              className="w-full py-3 rounded-xl bg-indigo-500 text-white font-semibold text-lg
-                         shadow-md hover:scale-[1.02] hover:bg-indigo-600 transition"
+              onClick={handleLogin}
+              className="w-full py-3 rounded-xl bg-indigo-500 text-white font-semibold text-lg shadow-md hover:scale-[1.02] hover:bg-indigo-600 transition"
             >
               Login
             </button>

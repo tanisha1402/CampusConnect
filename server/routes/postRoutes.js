@@ -1,15 +1,24 @@
-// server/routes/postRoutes.js
 const express = require('express');
 const router = express.Router();
 
-const { createPost, getPosts } = require('../controllers/postController');
+const {
+  createPost,
+  getPosts,
+  likePost,
+  commentOnPost,
+  getUserPosts
+} = require('../controllers/postController');
+
 const authMiddleware = require('../middlewares/authMiddleware');
 
-
-// GET /api/posts → list posts (protected)
+// Routes
 router.get('/', authMiddleware, getPosts);
-
-// POST /api/posts → create new post (protected)
 router.post('/', authMiddleware, createPost);
+
+router.get("/user/:id", authMiddleware, getUserPosts);
+
+router.post('/:id/like', authMiddleware, likePost);
+router.post('/:id/comments', authMiddleware, commentOnPost);
+
 
 module.exports = router;
