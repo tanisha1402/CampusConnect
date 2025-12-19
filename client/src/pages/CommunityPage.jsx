@@ -38,7 +38,7 @@ export default function CommunityPage() {
   if (!community) return <p className="p-6">Community not found</p>;
 
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-6">
+    <div className="max-w-5xl p-6 mx-auto space-y-6">
       <CommunityAbout community={community} />
 
       <JoinLeaveButton
@@ -46,12 +46,18 @@ export default function CommunityPage() {
         members={community.members}
         setCommunity={setCommunity}
       />
-      <CreateCommunityPost
-      communityId={id}
-      setPosts={setPosts}
-    />
+      {community.members.includes(
+  JSON.parse(localStorage.getItem("user"))?._id
+) && (
+  <CreateCommunityPost
+    communityId={id}
+    setPosts={setPosts}
+  />
+)}
+
     
-      <CommunityPosts posts={posts} />
+      <CommunityPosts posts={posts} setPosts={setPosts} />
+  
     </div>
   );
 }

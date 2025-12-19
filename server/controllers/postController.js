@@ -1,6 +1,8 @@
 const Post = require("../models/Post");
 
 // CREATE POST
+const Community = require("../models/Community");
+
 const createPost = async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -10,15 +12,25 @@ const createPost = async (req, res) => {
       return res.status(400).json({ message: "Content is required" });
     }
 
+    // 🔒 Check community exists
+    const community = await Community.findById(communityId);
+    if (!community) {
+      return res.status(404).json({ message: "Community not found" });
+    }
+
+    // 🔒 Check user is a member
+    if (!community.members.includes(userId)) {
+      return res.status(403).json({ message: "Join the community to post" });
+    }
+
     const post = await Post.create({
       user: userId,
       content,
-      community: communityId || null,
+      community: communityId,
     });
 
     const populatedPost = await Post.findById(post._id)
-      .populate("user", "name role")
-      .populate("comments.user", "name");
+      .populate("user", "name role");
 
     res.status(201).json(populatedPost);
   } catch (err) {
@@ -26,6 +38,7 @@ const createPost = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 // GET POSTS
@@ -135,6 +148,7 @@ const getUserPosts = async (req, res) => {
     res.status(500).json({ message: "Server error while fetching user posts" });
   }
 };
+
 
 module.exports = {
   createPost,

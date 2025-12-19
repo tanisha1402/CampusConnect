@@ -11,7 +11,7 @@ const postSchema = new mongoose.Schema(
       ref: "Community",
       required: true
     },
-
+    
     likes: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -30,6 +30,7 @@ const postSchema = new mongoose.Schema(
   {
     timestamps: true
   }
+  
 );
 
 module.exports = mongoose.model("Post", postSchema);
