@@ -4,26 +4,29 @@ const Post = require("../models/Post");
 const createPost = async (req, res) => {
   try {
     const userId = req.user.userId;
+    const { content, communityId } = req.body;
 
-    const { content } = req.body;
-
-    if (!content.trim()) {
+    if (!content || !content.trim()) {
       return res.status(400).json({ message: "Content is required" });
     }
 
     const post = await Post.create({
       user: userId,
       content,
+      community: communityId || null,
     });
 
-    await post.populate("user", "name role");
+    const populatedPost = await Post.findById(post._id)
+      .populate("user", "name role")
+      .populate("comments.user", "name");
 
-    res.status(201).json(post);
+    res.status(201).json(populatedPost);
   } catch (err) {
     console.error("Error creating post:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // GET POSTS
 const getPosts = async (req, res) => {
@@ -39,6 +42,20 @@ const getPosts = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+const getCommunityPosts = async (req, res) => {
+  try {
+    const posts = await Post.find({ community: req.params.id })
+      .populate("user", "name role")
+      .populate("comments.user", "name")
+      .sort({ createdAt: -1 });
+
+    res.json(posts);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 
 // LIKE POST
 const likePost = async (req, res) => {
@@ -102,6 +119,7 @@ const commentOnPost = async (req, res) => {
 };
 
 
+
 // GET /api/users/:id/posts  (get posts by user)
 const getUserPosts = async (req, res) => {
   try {
@@ -121,6 +139,7 @@ const getUserPosts = async (req, res) => {
 module.exports = {
   createPost,
   getPosts,
+  getCommunityPosts,
   likePost,
   commentOnPost,
   getUserPosts

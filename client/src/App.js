@@ -8,6 +8,8 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import PublicProfile from "./pages/PublicProfile";
+import CreateCommunity from "./pages/CreateCommunity";
+import CommunityPage from "./pages/CommunityPage";
 function App() {
   return (
     <Router>
@@ -17,6 +19,10 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/profile/:id" element={<PublicProfile />} />
+        <Route path="/communities/create" element={<CreateCommunity />} />
+        <Route path="/communities/:id" element={<CommunityPage />} />
+
+
         {/* You can add more later */}
         {/* <Route path="/profile" element={<Profile />} /> */}
         {/* <Route path="/posts" element={<Posts />} /> */}

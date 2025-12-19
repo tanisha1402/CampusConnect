@@ -22,6 +22,7 @@ app.use('/api/users', userRoutes);
 const postRoutes = require('./routes/postRoutes');
 app.use('/api/posts', postRoutes);
 
+app.use("/api/communities", require("./routes/communityRoutes"));
 
 // 5. test route
 app.get('/', (req, res) => {

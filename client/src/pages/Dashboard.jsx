@@ -114,6 +114,26 @@ export default function Dashboard() {
           </div>
         </div>
 
+    {/* Communities section */}
+<div className="p-6 mb-8 bg-white border shadow-xl rounded-3xl border-indigo-200/50">
+  <h2 className="mb-4 text-xl font-bold text-indigo-600">Communities</h2>
+
+  <div className="flex gap-4">
+    <button
+      onClick={() => navigate("/communities/create")}
+      className="px-4 py-2 text-white transition bg-indigo-500 rounded-xl hover:bg-indigo-600"
+    >
+      ➕ Create Community
+    </button>
+{/* <button
+      onClick={() => navigate("/communities")}
+      className="px-4 py-2 transition bg-slate-200 text-slate-800 rounded-xl hover:bg-slate-300"
+    >
+      🌐 View All Communities
+    </button> */}
+  </div>
+</div>
+
         {/* Post creator */}
         <div className="p-6 mb-8 transition border shadow-xl rounded-3xl bg-white/80 backdrop-blur-md border-indigo-200/50 hover:shadow-2xl">
           <h2 className="mb-4 text-xl font-semibold">Create a Post</h2>

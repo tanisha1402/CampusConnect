@@ -6,6 +6,12 @@ const postSchema = new mongoose.Schema(
 
     content: { type: String, required: true, trim: true },
 
+    community: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Community",
+      required: true
+    },
+
     likes: [
       {
         type: mongoose.Schema.Types.ObjectId,
