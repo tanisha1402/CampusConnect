@@ -7,13 +7,17 @@ const {
   getCommunities,
   getCommunityById,
   joinCommunity,
-  leaveCommunity
+  leaveCommunity,
+  getMyCommunities
 } = require("../controllers/communityController");
-
+// server/routes/communityRoutes.js
 router.post("/", auth, createCommunity);
 router.get("/", auth, getCommunities);
-router.get("/:id", auth, getCommunityById);
 
+// ✅ FIX: put this ABOVE :id
+router.get("/my", auth, getMyCommunities);
+
+router.get("/:id", auth, getCommunityById);
 router.post("/:id/join", auth, joinCommunity);
 router.post("/:id/leave", auth, leaveCommunity);
 

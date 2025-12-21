@@ -4,7 +4,10 @@ import axiosInstance from "../utils/axiosInstance";
 export default function JoinLeaveButton({ communityId, members, setCommunity }) {
   const userId = JSON.parse(localStorage.getItem("user"))?._id;
 
-  const isMember = members.includes(userId);
+  const isMember = members.some(
+  (m) => m._id?.toString() === userId || m.toString() === userId
+);
+
 
 const handleJoin = async () => {
   const res = await axiosInstance.post(

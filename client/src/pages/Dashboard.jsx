@@ -7,6 +7,7 @@ export default function Dashboard() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  const [myCommunities, setMyCommunities] = useState([]);
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState("");
   const [loading, setLoading] = useState(true);
@@ -15,6 +16,21 @@ export default function Dashboard() {
   const [showModal, setShowModal] = useState(false);
   const [activePost, setActivePost] = useState(null);
   const [commentText, setCommentText] = useState("");
+
+  const loadMyCommunities = async () => {
+  try {
+    const res = await axiosInstance.get("/communities/my");
+    setMyCommunities(res.data);
+  } catch (err) {
+    console.error("Error loading communities", err);
+  }
+};
+
+useEffect(() => {
+  loadPosts();
+  loadMyCommunities();
+}, []);
+
 
   // Fetch posts
   const loadPosts = async () => {
@@ -84,21 +100,49 @@ export default function Dashboard() {
 
       {/* Sidebar */}
       <aside className="hidden w-64 p-6 bg-white shadow-xl md:block">
-        <h2 className="mb-6 text-2xl font-bold text-indigo-600">CampusConnect</h2>
-        <ul className="space-y-3">
-          <li className="font-semibold text-indigo-700">Dashboard</li>
-         <li
-  className="cursor-pointer hover:text-indigo-500"
-  onClick={() => navigate("/profile")}
->
-  My Profile
-</li>
+  <h2 className="mb-6 text-2xl font-bold text-indigo-600">
+    CampusConnect
+  </h2>
 
+  {/* Main Nav */}
+  <ul className="mb-8 space-y-3">
+    <li className="font-semibold text-indigo-700">Dashboard</li>
 
-          <li className="cursor-pointer hover:text-indigo-500">Messages</li>
-          <li className="cursor-pointer hover:text-indigo-500">Settings</li>
-        </ul>
-      </aside>
+    <li
+      className="cursor-pointer hover:text-indigo-500"
+      onClick={() => navigate("/profile")}
+    >
+      My Profile
+    </li>
+  </ul>
+
+  {/* Communities */}
+  <div>
+    <h3 className="mb-3 text-sm font-semibold uppercase text-slate-500">
+      My Communities
+    </h3>
+
+    {myCommunities.length === 0 ? (
+      <p className="text-sm text-slate-400">
+        You haven’t joined any yet
+      </p>
+    ) : (
+      <ul className="space-y-2">
+        {myCommunities.map((community) => (
+          <li
+            key={community._id}
+            onClick={() =>
+              navigate(`/communities/${community._id}`)
+            }
+            className="px-3 py-2 text-sm font-medium transition rounded-lg cursor-pointer hover:bg-indigo-50 hover:text-indigo-600"
+          >
+            #{community.name}
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</aside>
 
       {/* Main content */}
       <main className="flex-1 p-10">

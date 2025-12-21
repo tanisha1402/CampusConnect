@@ -2,6 +2,10 @@ import { useState, useEffect, useContext } from "react";
 import axiosInstance from "../utils/axiosInstance";
 import { AuthContext } from "../context/AuthContext";
 
+import ProfileCard from "../components/ProfileCard";
+import ProfileForm from "../components/ProfileForm";
+import MyPosts from "../components/MyPosts";
+
 export default function Profile() {
   const { user, setUser } = useContext(AuthContext);
 
@@ -58,75 +62,26 @@ useEffect(() => {
     return <p className="p-10">Loading profile…</p>;
 
   return (
-    <div className="p-10">
-      <h1 className="mb-6 text-3xl font-bold text-slate-800">
-        My Profile
-      </h1>
+  <div className="min-h-screen p-8 bg-slate-50">
+    <div className="grid max-w-6xl grid-cols-1 gap-8 mx-auto md:grid-cols-3">
+      
+      {/* LEFT: Profile Card */}
+      <ProfileCard form={form} />
 
-      <div className="max-w-xl space-y-4">
-        <input
-          className="w-full p-3 border rounded-xl"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          placeholder="Full name"
+      {/* RIGHT: Edit + Posts */}
+      <div className="space-y-8 md:col-span-2">
+        <ProfileForm
+          form={form}
+          setForm={setForm}
+          saving={saving}
+          onSave={handleSave}
         />
 
-        <input
-          className="w-full p-3 border rounded-xl bg-slate-100"
-          value={form.email}
-          disabled
-        />
-
-        <select
-          className="w-full p-3 border rounded-xl"
-          value={form.role}
-          onChange={(e) => setForm({ ...form, role: e.target.value })}
-        >
-          <option value="student">Student</option>
-          <option value="faculty">Faculty</option>
-        </select>
-
-        <input
-          className="w-full p-3 border rounded-xl"
-          value={form.department}
-          onChange={(e) => setForm({ ...form, department: e.target.value })}
-          placeholder="Department (optional)"
-        />
-
-        <textarea
-          className="w-full p-3 border rounded-xl"
-          value={form.bio}
-          onChange={(e) => setForm({ ...form, bio: e.target.value })}
-          placeholder="Short bio"
-        />
-
-        <button
-          onClick={handleSave}
-          className="px-6 py-3 bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 hover:scale-[1.02] transition"
-        >
-          {saving ? "Saving..." : "Save Changes"}
-        </button>
-        <h2 className="mt-10 mb-4 text-2xl font-semibold">My Posts</h2>
-
-{myPosts.length === 0 ? (
-  <p className="text-slate-500">You haven't posted anything yet.</p>
-) : (
-  <div className="space-y-4">
-    {myPosts.map((post) => (
-      <div
-        key={post._id}
-        className="p-4 bg-white border shadow-sm rounded-xl"
-      >
-        <p className="text-slate-800">{post.content}</p>
-        <p className="text-sm text-slate-500">
-          {new Date(post.createdAt).toLocaleString()}
-        </p>
+        <MyPosts posts={myPosts} />
       </div>
-    ))}
-  </div>
-)}
 
-      </div>
     </div>
-  );
+  </div>
+);
+
 }

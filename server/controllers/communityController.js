@@ -74,4 +74,27 @@ const leaveCommunity = async (req, res) => {
   res.json(community);
 };
 
-module.exports = { createCommunity, getCommunities, getCommunityById , joinCommunity , leaveCommunity };
+// Get communities joined by logged-in user
+const getMyCommunities = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const communities = await Community.find({
+      members: userId
+    }).sort({ createdAt: -1 });
+
+    res.json(communities);
+  } catch (error) {
+    console.error("Error fetching user communities", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+module.exports = {
+  createCommunity,
+  getCommunities,
+  getCommunityById,
+  joinCommunity,
+  leaveCommunity,
+  getMyCommunities
+};
+
