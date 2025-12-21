@@ -49,30 +49,58 @@ const getCommunityById = async (req, res) => {
 };
 
 const joinCommunity = async (req, res) => {
-  const community = await Community.findById(req.params.id);
+  try {
+    const userId = req.user.userId;
+    const communityId = req.params.id;
 
-  if (!community) {
-    return res.status(404).json({ message: "Community not found" });
+    const community = await Community.findById(communityId);
+    if (!community) {
+      return res.status(404).json({ message: "Community not found" });
+    }
+
+    if (!community.members.includes(userId)) {
+      community.members.push(userId);
+      await community.save();
+    }
+
+    // ✅ RETURN UPDATED COMMUNITY
+    const updatedCommunity = await Community.findById(communityId)
+      .populate("members", "_id name");
+
+    res.json(updatedCommunity);
+  } catch (err) {
+    console.error("Join community error:", err);
+    res.status(500).json({ message: "Server error" });
   }
-
-  if (!community.members.includes(req.user.userId)) {
-    community.members.push(req.user.userId);
-    await community.save();
-  }
-
-  res.json(community);
 };
 
 const leaveCommunity = async (req, res) => {
-  const community = await Community.findById(req.params.id);
+  try {
+    const userId = req.user.userId;
+    const communityId = req.params.id;
 
-  community.members = community.members.filter(
-    id => id.toString() !== req.user.userId
-  );
+    const community = await Community.findById(communityId);
+    if (!community) {
+      return res.status(404).json({ message: "Community not found" });
+    }
 
-  await community.save();
-  res.json(community);
+    community.members = community.members.filter(
+      (id) => id.toString() !== userId
+    );
+
+    await community.save();
+
+    // ✅ RETURN UPDATED COMMUNITY
+    const updatedCommunity = await Community.findById(communityId)
+      .populate("members", "_id name");
+
+    res.json(updatedCommunity);
+  } catch (err) {
+    console.error("Leave community error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
 };
+
 
 // Get communities joined by logged-in user
 const getMyCommunities = async (req, res) => {

@@ -1,43 +1,21 @@
 const Post = require("../models/Post");
 
 // CREATE POST
-const Community = require("../models/Community");
-
 const createPost = async (req, res) => {
-  try {
-    const userId = req.user.userId;
-    const { content, communityId } = req.body;
+  const { content, communityId } = req.body;
 
-    if (!content || !content.trim()) {
-      return res.status(400).json({ message: "Content is required" });
-    }
+  const post = await Post.create({
+    user: req.user.userId,
+    content,
+    community: communityId || null
+  });
 
-    // 🔒 Check community exists
-    const community = await Community.findById(communityId);
-    if (!community) {
-      return res.status(404).json({ message: "Community not found" });
-    }
+  const populatedPost = await Post.findById(post._id)
+    .populate("user", "name");
 
-    // 🔒 Check user is a member
-    if (!community.members.includes(userId)) {
-      return res.status(403).json({ message: "Join the community to post" });
-    }
-
-    const post = await Post.create({
-      user: userId,
-      content,
-      community: communityId,
-    });
-
-    const populatedPost = await Post.findById(post._id)
-      .populate("user", "name role");
-
-    res.status(201).json(populatedPost);
-  } catch (err) {
-    console.error("Error creating post:", err);
-    res.status(500).json({ message: "Server error" });
-  }
+  res.status(201).json(populatedPost);
 };
+
 
 
 
