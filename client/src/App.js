@@ -10,19 +10,23 @@ import Profile from "./pages/Profile";
 import PublicProfile from "./pages/PublicProfile";
 import CreateCommunity from "./pages/CreateCommunity";
 import CommunityPage from "./pages/CommunityPage";
+import Search from "./pages/Search";
+import AppLayout from "./layouts/AppLayout";
+
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/profile/:id" element={<PublicProfile />} />
-        <Route path="/communities/create" element={<CreateCommunity />} />
-        <Route path="/communities/:id" element={<CommunityPage />} />
-
-
+        <Route element={<AppLayout />}>
+  <Route path="/dashboard" element={<Dashboard />} />
+  <Route path="/profile" element={<Profile />} />
+  <Route path="/profile/:id" element={<PublicProfile />} />
+  <Route path="/communities/create" element={<CreateCommunity />} />
+  <Route path="/communities/:id" element={<CommunityPage />} />
+  <Route path="/search" element={<Search />} />
+</Route>
         {/* You can add more later */}
         {/* <Route path="/profile" element={<Profile />} /> */}
         {/* <Route path="/posts" element={<Posts />} /> */}

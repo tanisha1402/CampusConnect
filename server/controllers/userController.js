@@ -108,11 +108,34 @@ const getUserById = async (req, res) => {
   }
 };
 
+// GET /api/users?search=ira
+const searchUsers = async (req, res) => {
+  try {
+    const { search } = req.query;
+
+    let query = {};
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const users = await User.find(query).select("-password");
+
+    res.json(users);
+  } catch (error) {
+    console.error("Error searching users", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   getMe,
   updateUserProfile,
-  getUserById
+  getUserById,
+  searchUsers
 };
 

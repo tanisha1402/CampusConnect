@@ -1,29 +1,28 @@
 // src/components/JoinLeaveButton.jsx
 import axiosInstance from "../utils/axiosInstance";
-
 export default function JoinLeaveButton({ communityId, members, setCommunity }) {
   const userId = JSON.parse(localStorage.getItem("user"))?._id;
 
   const isMember = members.some(
-    (m) => m._id === userId || m === userId
+    (m) => m.user?._id === userId
   );
 
   const handleJoin = async () => {
     const res = await axiosInstance.post(
       `/communities/${communityId}/join`
     );
-
-    // ✅ res.data is now the updated community
     setCommunity(res.data);
   };
 
   const handleLeave = async () => {
-    const res = await axiosInstance.post(
-      `/communities/${communityId}/leave`
-    );
-
-    // ✅ res.data is now the updated community
-    setCommunity(res.data);
+    try {
+      const res = await axiosInstance.post(
+        `/communities/${communityId}/leave`
+      );
+      setCommunity(res.data);
+    } catch (err) {
+      alert(err.response?.data?.message || "Error leaving community");
+    }
   };
 
   return (

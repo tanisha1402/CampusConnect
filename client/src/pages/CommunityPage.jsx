@@ -38,13 +38,22 @@ export default function CommunityPage() {
 
   // ✅ Normalize member IDs safely
   const isMember = useMemo(() => {
-    if (!user || !community) return false;
+  if (!user || !community) return false;
 
-    return community.members.some(
-      (member) =>
-        member === user._id || member?._id === user._id
-    );
-  }, [community, user]);
+  return community.members.some(
+    (m) => m.user?._id === user._id
+  );
+}, [community, user]);
+
+const isAdmin = useMemo(() => {
+  if (!user || !community) return false;
+
+  return community.members.some(
+    (m) =>
+      m.user?._id === user._id && m.role === "admin"
+  );
+}, [community, user]);
+
 
   if (loading) return <p className="p-6">Loading community...</p>;
   if (!community) return <p className="p-6">Community not found</p>;

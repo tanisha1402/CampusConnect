@@ -4,14 +4,27 @@ const communitySchema = new mongoose.Schema(
   {
     name: { type: String, required: true, unique: true },
     description: { type: String },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
 
     members: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      }
-    ]
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        role: {
+          type: String,
+          enum: ["admin", "member"],
+          default: "member",
+        },
+      },
+    ],
   },
   { timestamps: true }
 );
