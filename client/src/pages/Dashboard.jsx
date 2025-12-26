@@ -11,6 +11,8 @@ export default function Dashboard() {
   const [newPost, setNewPost] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const [file, setFile] = useState(null);
+
   // Comments modal
   const [showModal, setShowModal] = useState(false);
   const [activePost, setActivePost] = useState(null);
@@ -32,18 +34,27 @@ export default function Dashboard() {
   }, []);
 
   // Create post
-  const handleCreatePost = async (e) => {
-    e.preventDefault();
-    if (!newPost.trim()) return;
+const handleCreatePost = async (e) => {
+  e.preventDefault();
+  if (!newPost.trim() && !file) return;
 
-    try {
-      const res = await axiosInstance.post("/posts", { content: newPost });
-      setPosts((prev) => [res.data, ...prev]);
-      setNewPost("");
-    } catch (err) {
-      console.error("Error creating post", err);
-    }
-  };
+  try {
+    const formData = new FormData();
+    formData.append("content", newPost);
+    if (file) formData.append("file", file);
+
+    const res = await axiosInstance.post("/posts", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    setPosts((prev) => [res.data, ...prev]);
+    setNewPost("");
+    setFile(null);
+  } catch (err) {
+    console.error("Error creating post", err);
+  }
+};
+
 
   // Like post
   const handleLike = async (postId) => {
@@ -113,21 +124,34 @@ export default function Dashboard() {
       <div className="p-6 mb-8 bg-white border shadow-xl rounded-3xl border-indigo-200/50">
         <h2 className="mb-4 text-xl font-semibold">Create a Post</h2>
 
-        <form onSubmit={handleCreatePost}>
-          <textarea
-            className="w-full p-4 border rounded-xl"
-            placeholder="Share something..."
-            value={newPost}
-            onChange={(e) => setNewPost(e.target.value)}
-          />
+      <form onSubmit={handleCreatePost}>
+  <textarea
+    className="w-full p-4 border rounded-xl"
+    placeholder="Share something..."
+    value={newPost}
+    onChange={(e) => setNewPost(e.target.value)}
+  />
 
-          <button
-            type="submit"
-            className="px-6 py-3 mt-3 text-white bg-indigo-500 rounded-xl hover:bg-indigo-600"
-          >
-            Post
-          </button>
-        </form>
+  <input
+    type="file"
+    accept="image/*,.pdf"
+    onChange={(e) => setFile(e.target.files[0])}
+    className="mt-3"
+  />
+
+  {file && (
+    <p className="mt-1 text-sm text-slate-500">
+      Selected: {file.name}
+    </p>
+  )}
+
+  <button
+    type="submit"
+    className="px-6 py-3 mt-3 text-white bg-indigo-500 rounded-xl hover:bg-indigo-600"
+  >
+    Post
+  </button>
+</form>
       </div>
 
       {/* Posts feed */}
@@ -161,6 +185,25 @@ export default function Dashboard() {
               </div>
 
               <p className="mb-4 text-slate-700">{post.content}</p>
+
+{/* FILE PREVIEW */}
+{post.file?.type === "image" && (
+  <img
+    src={`http://localhost:5000${post.file.url}`}
+    alt="post upload"
+    className="object-cover mt-3 border rounded-xl max-h-96"
+  />
+)}
+{post.file?.type === "file" && (
+  <a
+    href={`http://localhost:5000${post.file.url}`}
+    target="_blank"
+    rel="noreferrer"
+    className="inline-flex items-center gap-2 mt-3 text-indigo-600 hover:underline"
+  >
+    📎 {post.file.name}
+  </a>
+)}
 
               <div className="flex items-center gap-6">
                 <button
