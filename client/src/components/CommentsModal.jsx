@@ -1,24 +1,24 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
 
 export default function CommentsModal({ post, onClose, setPosts }) {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const addComment = async () => {
     if (!text.trim()) return;
 
     try {
       setLoading(true);
-
       const res = await axiosInstance.post(
         `/posts/${post._id}/comments`,
         { text }
       );
 
-      // Update post inside posts state
-      setPosts(prev =>
-        prev.map(p => (p._id === post._id ? res.data : p))
+      setPosts((prev) =>
+        prev.map((p) => (p._id === post._id ? res.data : p))
       );
 
       setText("");
@@ -51,7 +51,12 @@ export default function CommentsModal({ post, onClose, setPosts }) {
           ) : (
             post.comments.map((c, i) => (
               <div key={i} className="p-3 rounded-lg bg-slate-100">
-                <p className="text-sm font-semibold">{c.user.name}</p>
+                <p
+                  className="text-sm font-semibold text-indigo-600 cursor-pointer hover:underline"
+                  onClick={() => navigate(`/profile/${c.user._id}`)}
+                >
+                  {c.user.name}
+                </p>
                 <p className="text-sm">{c.text}</p>
               </div>
             ))

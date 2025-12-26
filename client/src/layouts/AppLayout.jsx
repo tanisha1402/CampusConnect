@@ -20,44 +20,36 @@ export default function AppLayout() {
     loadMyCommunities();
   }, []);
 
-  return (
-    <div className="flex min-h-screen bg-[#eef2ff]">
+ return (
+  <div className="min-h-screen bg-gradient-to-br from-primarySoft via-lavender to-primarySoft">
+    
+    <div className="flex min-h-screen">
       
       {/* SIDEBAR */}
-      <aside className="hidden w-64 p-6 bg-white shadow-xl md:block">
+      <aside className="hidden w-64 p-6 shadow-xl bg-white/80 backdrop-blur-xl md:block">
         <h2
-          className="mb-6 text-2xl font-bold text-indigo-600 cursor-pointer"
+          className="mb-6 text-2xl font-bold cursor-pointer text-primary"
           onClick={() => navigate("/dashboard")}
         >
           CampusConnect
         </h2>
 
-        <ul className="mb-8 space-y-3">
-          <li
-            className="cursor-pointer hover:text-indigo-500"
-            onClick={() => navigate("/dashboard")}
-          >
+        <ul className="mb-8 space-y-3 text-textMain">
+          <li onClick={() => navigate("/dashboard")} className="cursor-pointer hover:text-primary">
             Dashboard
           </li>
-          <li
-            className="cursor-pointer hover:text-indigo-500"
-            onClick={() => navigate("/profile")}
-          >
+          <li onClick={() => navigate("/profile")} className="cursor-pointer hover:text-primary">
             My Profile
           </li>
-          <li
-            className="cursor-pointer hover:text-indigo-500"
-            onClick={() => navigate("/search")}
-          >
+          <li onClick={() => navigate("/search")} className="cursor-pointer hover:text-primary">
             Search
           </li>
         </ul>
 
         <div>
-          <h3 className="mb-3 text-sm font-semibold uppercase text-slate-500">
+          <h3 className="mb-3 text-sm font-semibold uppercase text-textMuted">
             My Communities
           </h3>
-
           {myCommunities.length === 0 ? (
             <p className="text-sm text-slate-400">
               You haven’t joined any yet
@@ -68,7 +60,7 @@ export default function AppLayout() {
                 <li
                   key={c._id}
                   onClick={() => navigate(`/communities/${c._id}`)}
-                  className="px-3 py-2 text-sm rounded-lg cursor-pointer hover:bg-indigo-50 hover:text-indigo-600"
+                  className="px-3 py-2 text-sm rounded-lg cursor-pointer hover:bg-primarySoft hover:text-primary"
                 >
                   #{c.name}
                 </li>
@@ -79,9 +71,14 @@ export default function AppLayout() {
       </aside>
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 p-8">
-        <Outlet />
+      <main className="flex-1 px-6 py-10">
+        <div className="max-w-6xl mx-auto">
+          <Outlet />
+        </div>
       </main>
+
     </div>
-  );
+  </div>
+);
+
 }

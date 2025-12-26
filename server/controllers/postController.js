@@ -2,20 +2,44 @@ const Post = require("../models/Post");
 
 // CREATE POST
 const createPost = async (req, res) => {
-  const { content, communityId } = req.body;
+  try {
+    const { content, communityId } = req.body;
 
-  const post = await Post.create({
-    user: req.user.userId,
-    content,
-    community: communityId || null
-  });
+    // ✅ HARD VALIDATION
+    if (!content?.trim() && !req.file) {
+      return res.status(400).json({ message: "Post cannot be empty" });
+    }
 
-  const populatedPost = await Post.findById(post._id)
-    .populate("user", "name");
+    let fileData = null;
 
-  res.status(201).json(populatedPost);
+    if (req.file) {
+      fileData = {
+        url: `/uploads/${req.file.filename}`,
+        type: req.file.mimetype.startsWith("image")
+          ? "image"
+          : "file",
+        name: req.file.originalname
+      };
+    }
+
+    const post = await Post.create({
+      user: req.user.userId,
+      content: content || "",
+      community: communityId || null,
+      file: fileData
+    });
+
+    const populated = await Post.findById(post._id)
+      .populate("user", "name")
+      .populate("comments.user", "name");
+
+    res.status(201).json(populated);
+
+  } catch (err) {
+    console.error("Create post error:", err);
+    res.status(500).json({ message: err.message });
+  }
 };
-
 
 
 

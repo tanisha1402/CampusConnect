@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
+const upload = require("../middlewares/upload");
 const {
   createPost,
   getPosts,
@@ -13,8 +13,14 @@ const {
 const authMiddleware = require('../middlewares/authMiddleware');
 
 // Routes
+router.post(
+  "/",
+  authMiddleware,
+  upload.single("file"),
+  createPost
+);
+
 router.get('/', authMiddleware, getPosts);
-router.post('/', authMiddleware, createPost);
 
 router.get("/community/:id", authMiddleware, getCommunityPosts);
 
