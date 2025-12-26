@@ -184,7 +184,7 @@ const handleCreatePost = async (e) => {
                 </div>
               </div>
 
-              <p className="mb-4 text-slate-700">{post.content}</p>
+              <p className="mt-2">{post.content}</p>
 
 {/* FILE PREVIEW */}
 {post.file?.type === "image" && (
@@ -200,12 +200,11 @@ const handleCreatePost = async (e) => {
     target="_blank"
     rel="noreferrer"
     className="inline-flex items-center gap-2 mt-3 text-indigo-600 hover:underline"
-  >
-    📎 {post.file.name}
+  >📎 {post.file.name}
   </a>
 )}
 
-              <div className="flex items-center gap-6">
+              <div className="flex gap-6 mt-3">
                 <button
                   onClick={() => handleLike(post._id)}
                   className="flex items-center gap-1 text-red-500"
@@ -233,11 +232,17 @@ const handleCreatePost = async (e) => {
 
             <div className="mb-4 space-y-3 overflow-y-auto max-h-60">
               {activePost.comments?.map((c, i) => (
-                <div key={i} className="p-3 bg-slate-100 rounded-xl">
-                  <p className="font-medium">{c.user.name}</p>
-                  <p>{c.text}</p>
-                </div>
-              ))}
+  <div key={i} className="p-3 bg-slate-100 rounded-xl">
+    <p
+      className="font-medium text-indigo-600 cursor-pointer hover:underline"
+      onClick={() => navigate(`/profile/${c.user._id}`)}
+    >
+      {c.user.name}
+    </p>
+    <p>{c.text}</p>
+  </div>
+))}
+
             </div>
 
             <textarea
