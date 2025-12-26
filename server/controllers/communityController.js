@@ -60,16 +60,19 @@ const getCommunities = async (req, res) => {
 // Get single community by ID
 const getCommunityById = async (req, res) => {
   try {
-    const community = await Community.findById(req.params.id).populate("members", "name email");
+    const community = await Community.findById(req.params.id)
+      .populate("members.user", "name email");
 
-    if (!community) return res.status(404).json({ message: "Community not found" });
+    if (!community)
+      return res.status(404).json({ message: "Community not found" });
 
     res.json(community);
   } catch (error) {
-    console.error(error);
+    console.error("Get community error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 const joinCommunity = async (req, res) => {
   try {
