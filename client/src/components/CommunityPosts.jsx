@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
 import CommentsModal from "./CommentsModal";
+import DeleteConfirmModal from "./DeleteConfirmModal";
 
 export default function CommunityPosts({ posts, setPosts }) {
   const [activePost, setActivePost] = useState(null);
@@ -9,6 +10,9 @@ export default function CommunityPosts({ posts, setPosts }) {
   const userId = JSON.parse(localStorage.getItem("user"))?._id;
   const [editingPostId, setEditingPostId] = useState(null);
   const [editText, setEditText] = useState("");
+  const [deletePostId, setDeletePostId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
 
   const handleLike = async (postId) => {
     const res = await axiosInstance.post(`/posts/${postId}/like`);
@@ -35,18 +39,22 @@ export default function CommunityPosts({ posts, setPosts }) {
     alert(err.response?.data?.message || "Failed to edit post");
   }
 };
-const handleDelete = async (postId) => {
-  const confirmDelete = window.confirm("Are you sure you want to delete this post?");
-  if (!confirmDelete) return;
+const handleDelete = async () => {
+  if (!deletePostId) return;
 
   try {
-    await axiosInstance.delete(`/posts/${postId}`);
-    setPosts(prev => prev.filter(p => p._id !== postId));
+    setDeleting(true);
+    await axiosInstance.delete(`/posts/${deletePostId}`);
+    setPosts(prev => prev.filter(p => p._id !== deletePostId));
+    setDeletePostId(null);
   } catch (err) {
     console.error("Delete post error", err);
     alert(err.response?.data?.message || "Failed to delete post");
+  } finally {
+    setDeleting(false);
   }
 };
+
 
 
   return (
@@ -165,11 +173,12 @@ const handleDelete = async (postId) => {
     </button>
 
     <button
-      onClick={() => handleDelete(post._id)}
-      className="text-sm text-red-600 hover:underline"
-    >
-      🗑 Delete
-    </button>
+  onClick={() => setDeletePostId(post._id)}
+  className="text-sm text-red-600 hover:underline"
+>
+  🗑 Delete
+</button>
+
   </>
 )}
 
@@ -189,6 +198,16 @@ const handleDelete = async (postId) => {
   onClose={() => setActivePost(null)}
 />
       )}
+
+      {deletePostId && (
+  <DeleteConfirmModal
+    message="Are you sure you want to delete this post? This action cannot be undone."
+    onCancel={() => setDeletePostId(null)}
+    onConfirm={handleDelete}
+    loading={deleting}
+  />
+)}
+
     </>
   );
 }

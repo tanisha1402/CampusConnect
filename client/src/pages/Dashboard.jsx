@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import axiosInstance from "../utils/axiosInstance";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import DeleteConfirmModal from "../components/DeleteConfirmModal";
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
@@ -12,6 +13,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [editingPostId, setEditingPostId] = useState(null);
   const [editText, setEditText] = useState("");
+  const [deletePostId, setDeletePostId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [file, setFile] = useState(null);
 
@@ -115,18 +118,22 @@ const handleCreatePost = async (e) => {
     }
   };
 
-  const handleDelete = async (postId) => {
-  const confirmDelete = window.confirm("Delete this post?");
-  if (!confirmDelete) return;
+  const handleDelete = async () => {
+  if (!deletePostId) return;
 
   try {
-    await axiosInstance.delete(`/posts/${postId}`);
-    setPosts(prev => prev.filter(p => p._id !== postId));
+    setDeleting(true);
+    await axiosInstance.delete(`/posts/${deletePostId}`);
+    setPosts(prev => prev.filter(p => p._id !== deletePostId));
+    setDeletePostId(null);
   } catch (err) {
     console.error("Delete error", err);
     alert("Failed to delete post");
+  } finally {
+    setDeleting(false);
   }
 };
+
 
   return (
     <>
@@ -296,11 +303,12 @@ const handleCreatePost = async (e) => {
     </button>
 
     <button
-      onClick={() => handleDelete(post._id)}
-      className="text-sm text-red-600 hover:underline"
-    >
-      🗑 Delete
-    </button>
+  onClick={() => setDeletePostId(post._id)}
+  className="text-sm text-red-600 hover:underline"
+>
+  🗑 Delete
+</button>
+
   </>
 )}
 
@@ -357,6 +365,16 @@ const handleCreatePost = async (e) => {
           </div>
         </div>
       )}
+
+      {deletePostId && (
+  <DeleteConfirmModal
+    message="Are you sure you want to delete this post? This action cannot be undone."
+    onCancel={() => setDeletePostId(null)}
+    onConfirm={handleDelete}
+    loading={deleting}
+  />
+)}
+
     </>
   );
 }
