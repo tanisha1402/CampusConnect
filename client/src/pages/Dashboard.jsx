@@ -115,6 +115,19 @@ const handleCreatePost = async (e) => {
     }
   };
 
+  const handleDelete = async (postId) => {
+  const confirmDelete = window.confirm("Delete this post?");
+  if (!confirmDelete) return;
+
+  try {
+    await axiosInstance.delete(`/posts/${postId}`);
+    setPosts(prev => prev.filter(p => p._id !== postId));
+  } catch (err) {
+    console.error("Delete error", err);
+    alert("Failed to delete post");
+  }
+};
+
   return (
     <>
       {/* Header */}
@@ -271,16 +284,26 @@ const handleCreatePost = async (e) => {
                   💬 {post.comments?.length || 0}
                 </button>
                 {post.user._id === user?._id && (
-  <button
-    onClick={() => {
-      setEditingPostId(post._id);
-      setEditText(post.content);
-    }}
-    className="text-sm text-indigo-600 hover:underline"
-  >
-    ✏️ Edit
-  </button>
+  <>
+    <button
+      onClick={() => {
+        setEditingPostId(post._id);
+        setEditText(post.content);
+      }}
+      className="text-sm text-indigo-600 hover:underline"
+    >
+      ✏️ Edit
+    </button>
+
+    <button
+      onClick={() => handleDelete(post._id)}
+      className="text-sm text-red-600 hover:underline"
+    >
+      🗑 Delete
+    </button>
+  </>
 )}
+
 
               </div>
             </div>

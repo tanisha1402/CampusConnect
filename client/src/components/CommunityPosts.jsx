@@ -35,6 +35,18 @@ export default function CommunityPosts({ posts, setPosts }) {
     alert(err.response?.data?.message || "Failed to edit post");
   }
 };
+const handleDelete = async (postId) => {
+  const confirmDelete = window.confirm("Are you sure you want to delete this post?");
+  if (!confirmDelete) return;
+
+  try {
+    await axiosInstance.delete(`/posts/${postId}`);
+    setPosts(prev => prev.filter(p => p._id !== postId));
+  } catch (err) {
+    console.error("Delete post error", err);
+    alert(err.response?.data?.message || "Failed to delete post");
+  }
+};
 
 
   return (
@@ -140,17 +152,27 @@ export default function CommunityPosts({ posts, setPosts }) {
                 >
                   💬 {post.comments?.length || 0}
                 </button>
-              {post.user._id === userId && (
-  <button
-    onClick={() => {
-      setEditingPostId(post._id);
-      setEditText(post.content);
-    }}
-    className="text-sm text-indigo-600 hover:underline"
-  >
-    ✏️ Edit
-  </button>
+    {post.user._id === userId && (
+  <>
+    <button
+      onClick={() => {
+        setEditingPostId(post._id);
+        setEditText(post.content);
+      }}
+      className="text-sm text-indigo-600 hover:underline"
+    >
+      ✏️ Edit
+    </button>
+
+    <button
+      onClick={() => handleDelete(post._id)}
+      className="text-sm text-red-600 hover:underline"
+    >
+      🗑 Delete
+    </button>
+  </>
 )}
+
 
               </div>
             </div>

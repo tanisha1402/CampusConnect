@@ -79,7 +79,7 @@ const deletePost = async (req, res) => {
     if (!post)
       return res.status(404).json({ message: "Post not found" });
 
-    // 🔐 Ownership check
+    // ✅ Only post owner can delete
     if (post.user.toString() !== req.user.userId) {
       return res.status(403).json({ message: "Not authorized" });
     }
