@@ -194,7 +194,7 @@ const handleDelete = async () => {
         <CommentsModal
   post={activePost}
   setPosts={setPosts}
-  setActivePost={setActivePost}   // ✅ add this
+  setActivePost={setActivePost}  
   onClose={() => setActivePost(null)}
 />
       )}
