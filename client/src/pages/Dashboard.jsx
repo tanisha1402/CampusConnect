@@ -10,6 +10,8 @@ export default function Dashboard() {
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState("");
   const [loading, setLoading] = useState(true);
+  const [editingPostId, setEditingPostId] = useState(null);
+  const [editText, setEditText] = useState("");
 
   const [file, setFile] = useState(null);
 
@@ -73,6 +75,25 @@ const handleCreatePost = async (e) => {
     setActivePost(post);
     setShowModal(true);
   };
+  const handleEdit = async (postId) => {
+  if (!editText.trim()) return;
+
+  try {
+    const res = await axiosInstance.put(`/posts/${postId}`, {
+      content: editText,
+    });
+
+    setPosts((prev) =>
+      prev.map((p) => (p._id === postId ? res.data : p))
+    );
+
+    setEditingPostId(null);
+    setEditText("");
+  } catch (err) {
+    console.error("Edit post error", err);
+    alert(err.response?.data?.message || "Failed to edit post");
+  }
+};
 
   // Add comment
   const handleAddComment = async () => {
@@ -184,7 +205,35 @@ const handleCreatePost = async (e) => {
                 </div>
               </div>
 
-              <p className="mt-2">{post.content}</p>
+              {editingPostId === post._id ? (
+  <div className="mt-2 space-y-2">
+    <textarea
+      className="w-full p-2 border rounded-xl"
+      value={editText}
+      onChange={(e) => setEditText(e.target.value)}
+    />
+    <div className="flex gap-2">
+      <button
+        onClick={() => handleEdit(post._id)}
+        className="px-3 py-1 text-white bg-indigo-500 rounded-lg"
+      >
+        Save
+      </button>
+      <button
+        onClick={() => {
+          setEditingPostId(null);
+          setEditText("");
+        }}
+        className="px-3 py-1 rounded-lg bg-slate-300"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+) : (
+  <p className="mt-2">{post.content}</p>
+)}
+
 
 {/* FILE PREVIEW */}
 {post.file?.type === "image" && (
@@ -218,6 +267,18 @@ const handleCreatePost = async (e) => {
                 >
                   💬 {post.comments?.length || 0}
                 </button>
+                {post.user._id === user?._id && (
+  <button
+    onClick={() => {
+      setEditingPostId(post._id);
+      setEditText(post.content);
+    }}
+    className="text-sm text-indigo-600 hover:underline"
+  >
+    ✏️ Edit
+  </button>
+)}
+
               </div>
             </div>
           ))
