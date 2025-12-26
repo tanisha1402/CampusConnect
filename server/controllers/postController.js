@@ -46,27 +46,30 @@ const editPost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
 
-    if (!post)
+    if (!post) {
       return res.status(404).json({ message: "Post not found" });
-
-    // 🔐 Ownership check
-    if (post.user.toString() !== req.user.userId) {
-      return res.status(403).json({ message: "Not authorized" });
     }
 
-    post.content = req.body.content || post.content;
-    await post.save();
+    // only owner can edit
+    if (post.user.toString() !== req.user.userId) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
 
-    const populated = await Post.findById(post._id)
-      .populate("user", "name role")
-      .populate("comments.user", "name");
+    post.content = req.body.content;
 
-    res.json(populated);
+    await post.save(); // ✅ updatedAt changes here
+
+    const populatedPost = await Post.findById(post._id)
+      .populate("user", "name email")
+      .populate("comments.user", "name email");
+
+    res.json(populatedPost);
   } catch (err) {
     console.error("Edit post error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // DELETE POST
 const deletePost = async (req, res) => {

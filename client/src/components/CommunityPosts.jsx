@@ -66,8 +66,12 @@ export default function CommunityPosts({ posts, setPosts }) {
                     {post.user.name}
                   </p>
                   <p className="text-xs text-slate-500">
-                    {new Date(post.createdAt).toLocaleString()}
-                  </p>
+  {new Date(post.createdAt).toLocaleString()}
+  {post.updatedAt && post.updatedAt !== post.createdAt && (
+    <span className="ml-1 italic">(edited {new Date(post.updatedAt).toLocaleString()})</span>
+  )}
+</p>
+
                 </div>
               </div>
 {/* CONTENT */}
