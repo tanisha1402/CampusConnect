@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
 
-export default function CommentsModal({ post, onClose, setPosts }) {
+export default function CommentsModal({post,onClose,setPosts,setActivePost}) {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -13,13 +13,17 @@ export default function CommentsModal({ post, onClose, setPosts }) {
     try {
       setLoading(true);
       const res = await axiosInstance.post(
-        `/posts/${post._id}/comments`,
-        { text }
-      );
+  `/posts/${post._id}/comments`,
+  { text }
+);
 
-      setPosts((prev) =>
-        prev.map((p) => (p._id === post._id ? res.data : p))
-      );
+// ✅ update modal post
+setActivePost(res.data);
+
+// ✅ update posts list
+setPosts(prev =>
+  prev.map(p => (p._id === post._id ? res.data : p))
+);
 
       setText("");
       setLoading(false);

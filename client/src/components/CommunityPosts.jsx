@@ -95,10 +95,11 @@ export default function CommunityPosts({ posts, setPosts }) {
       {/* COMMENTS MODAL */}
       {activePost && (
         <CommentsModal
-          post={activePost}
-          setPosts={setPosts}
-          onClose={() => setActivePost(null)}
-        />
+  post={activePost}
+  setPosts={setPosts}
+  setActivePost={setActivePost}   // ✅ add this
+  onClose={() => setActivePost(null)}
+/>
       )}
     </>
   );
