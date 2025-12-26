@@ -1,5 +1,8 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
+
+const upload = require("../middlewares/upload");
+const authMiddleware = require("../middlewares/authMiddleware");
 
 const {
   createPost,
@@ -7,22 +10,38 @@ const {
   getCommunityPosts,
   likePost,
   commentOnPost,
-  getUserPosts
-} = require('../controllers/postController');
+  getUserPosts,
+  editPost,
+  deletePost
+} = require("../controllers/postController");
 
-const authMiddleware = require('../middlewares/authMiddleware');
+// CREATE POST (with file upload)
+router.post(
+  "/",
+  authMiddleware,
+  upload.single("file"),
+  createPost
+);
 
-// Routes
-router.get('/', authMiddleware, getPosts);
-router.post('/', authMiddleware, createPost);
+// GET ALL POSTS
+router.get("/", authMiddleware, getPosts);
 
+// GET COMMUNITY POSTS
 router.get("/community/:id", authMiddleware, getCommunityPosts);
 
+// GET USER POSTS
 router.get("/user/:id", authMiddleware, getUserPosts);
 
-router.post('/:id/like', authMiddleware, likePost);
-router.post('/:id/comments', authMiddleware, commentOnPost);
+// LIKE POST
+router.post("/:id/like", authMiddleware, likePost);
 
+// COMMENT ON POST
+router.post("/:id/comments", authMiddleware, commentOnPost);
 
+// ✏️ EDIT POST
+router.put("/:id", authMiddleware, editPost);
+
+// 🗑️ DELETE POST
+router.delete("/:id", authMiddleware, deletePost);
 
 module.exports = router;

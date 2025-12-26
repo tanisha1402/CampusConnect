@@ -2,21 +2,95 @@ const Post = require("../models/Post");
 
 // CREATE POST
 const createPost = async (req, res) => {
-  const { content, communityId } = req.body;
+  try {
+    const { content, communityId } = req.body;
 
-  const post = await Post.create({
-    user: req.user.userId,
-    content,
-    community: communityId || null
-  });
+    // ✅ HARD VALIDATION
+    if (!content?.trim() && !req.file) {
+      return res.status(400).json({ message: "Post cannot be empty" });
+    }
 
-  const populatedPost = await Post.findById(post._id)
-    .populate("user", "name");
+    let fileData = null;
 
-  res.status(201).json(populatedPost);
+    if (req.file) {
+      fileData = {
+        url: `/uploads/${req.file.filename}`,
+        type: req.file.mimetype.startsWith("image")
+          ? "image"
+          : "file",
+        name: req.file.originalname
+      };
+    }
+
+    const post = await Post.create({
+      user: req.user.userId,
+      content: content || "",
+      community: communityId || null,
+      file: fileData
+    });
+
+    const populated = await Post.findById(post._id)
+      .populate("user", "name")
+      .populate("comments.user", "name");
+
+    res.status(201).json(populated);
+
+  } catch (err) {
+    console.error("Create post error:", err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// EDIT POST
+const editPost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    // only owner can edit
+    if (post.user.toString() !== req.user.userId) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    post.content = req.body.content;
+
+    await post.save(); // ✅ updatedAt changes here
+
+    const populatedPost = await Post.findById(post._id)
+      .populate("user", "name email")
+      .populate("comments.user", "name email");
+
+    res.json(populatedPost);
+  } catch (err) {
+    console.error("Edit post error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
 
+// DELETE POST
+const deletePost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post)
+      return res.status(404).json({ message: "Post not found" });
+
+    // ✅ Only post owner can delete
+    if (post.user.toString() !== req.user.userId) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    await post.deleteOne();
+    res.json({ message: "Post deleted", postId: post._id });
+  } catch (err) {
+    console.error("Delete post error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 
 // GET POSTS
@@ -134,5 +208,7 @@ module.exports = {
   getCommunityPosts,
   likePost,
   commentOnPost,
-  getUserPosts
+  getUserPosts,
+  editPost,
+  deletePost
 };

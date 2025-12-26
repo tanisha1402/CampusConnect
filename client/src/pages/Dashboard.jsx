@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import axiosInstance from "../utils/axiosInstance";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import DeleteConfirmModal from "../components/DeleteConfirmModal";
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
@@ -10,6 +11,12 @@ export default function Dashboard() {
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState("");
   const [loading, setLoading] = useState(true);
+  const [editingPostId, setEditingPostId] = useState(null);
+  const [editText, setEditText] = useState("");
+  const [deletePostId, setDeletePostId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const [file, setFile] = useState(null);
 
   // Comments modal
   const [showModal, setShowModal] = useState(false);
@@ -32,18 +39,27 @@ export default function Dashboard() {
   }, []);
 
   // Create post
-  const handleCreatePost = async (e) => {
-    e.preventDefault();
-    if (!newPost.trim()) return;
+const handleCreatePost = async (e) => {
+  e.preventDefault();
+  if (!newPost.trim() && !file) return;
 
-    try {
-      const res = await axiosInstance.post("/posts", { content: newPost });
-      setPosts((prev) => [res.data, ...prev]);
-      setNewPost("");
-    } catch (err) {
-      console.error("Error creating post", err);
-    }
-  };
+  try {
+    const formData = new FormData();
+    formData.append("content", newPost);
+    if (file) formData.append("file", file);
+
+    const res = await axiosInstance.post("/posts", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    setPosts((prev) => [res.data, ...prev]);
+    setNewPost("");
+    setFile(null);
+  } catch (err) {
+    console.error("Error creating post", err);
+  }
+};
+
 
   // Like post
   const handleLike = async (postId) => {
@@ -62,6 +78,25 @@ export default function Dashboard() {
     setActivePost(post);
     setShowModal(true);
   };
+  const handleEdit = async (postId) => {
+  if (!editText.trim()) return;
+
+  try {
+    const res = await axiosInstance.put(`/posts/${postId}`, {
+      content: editText,
+    });
+
+    setPosts((prev) =>
+      prev.map((p) => (p._id === postId ? res.data : p))
+    );
+
+    setEditingPostId(null);
+    setEditText("");
+  } catch (err) {
+    console.error("Edit post error", err);
+    alert(err.response?.data?.message || "Failed to edit post");
+  }
+};
 
   // Add comment
   const handleAddComment = async () => {
@@ -82,6 +117,23 @@ export default function Dashboard() {
       console.error("Error adding comment", err);
     }
   };
+
+  const handleDelete = async () => {
+  if (!deletePostId) return;
+
+  try {
+    setDeleting(true);
+    await axiosInstance.delete(`/posts/${deletePostId}`);
+    setPosts(prev => prev.filter(p => p._id !== deletePostId));
+    setDeletePostId(null);
+  } catch (err) {
+    console.error("Delete error", err);
+    alert("Failed to delete post");
+  } finally {
+    setDeleting(false);
+  }
+};
+
 
   return (
     <>
@@ -113,21 +165,34 @@ export default function Dashboard() {
       <div className="p-6 mb-8 bg-white border shadow-xl rounded-3xl border-indigo-200/50">
         <h2 className="mb-4 text-xl font-semibold">Create a Post</h2>
 
-        <form onSubmit={handleCreatePost}>
-          <textarea
-            className="w-full p-4 border rounded-xl"
-            placeholder="Share something..."
-            value={newPost}
-            onChange={(e) => setNewPost(e.target.value)}
-          />
+      <form onSubmit={handleCreatePost}>
+  <textarea
+    className="w-full p-4 border rounded-xl"
+    placeholder="Share something..."
+    value={newPost}
+    onChange={(e) => setNewPost(e.target.value)}
+  />
 
-          <button
-            type="submit"
-            className="px-6 py-3 mt-3 text-white bg-indigo-500 rounded-xl hover:bg-indigo-600"
-          >
-            Post
-          </button>
-        </form>
+  <input
+    type="file"
+    accept="image/*,.pdf"
+    onChange={(e) => setFile(e.target.files[0])}
+    className="mt-3"
+  />
+
+  {file && (
+    <p className="mt-1 text-sm text-slate-500">
+      Selected: {file.name}
+    </p>
+  )}
+
+  <button
+    type="submit"
+    className="px-6 py-3 mt-3 text-white bg-indigo-500 rounded-xl hover:bg-indigo-600"
+  >
+    Post
+  </button>
+</form>
       </div>
 
       {/* Posts feed */}
@@ -155,14 +220,63 @@ export default function Dashboard() {
                     {post.user.name}
                   </p>
                   <p className="text-xs text-slate-500">
-                    {new Date(post.createdAt).toLocaleString()}
-                  </p>
+  {new Date(post.createdAt).toLocaleString()}
+  {post.updatedAt && post.updatedAt !== post.createdAt && (
+    <span className="ml-1 italic">(edited)</span>
+  )}
+</p>
                 </div>
               </div>
 
-              <p className="mb-4 text-slate-700">{post.content}</p>
+              {editingPostId === post._id ? (
+  <div className="mt-2 space-y-2">
+    <textarea
+      className="w-full p-2 border rounded-xl"
+      value={editText}
+      onChange={(e) => setEditText(e.target.value)}
+    />
+    <div className="flex gap-2">
+      <button
+        onClick={() => handleEdit(post._id)}
+        className="px-3 py-1 text-white bg-indigo-500 rounded-lg"
+      >
+        Save
+      </button>
+      <button
+        onClick={() => {
+          setEditingPostId(null);
+          setEditText("");
+        }}
+        className="px-3 py-1 rounded-lg bg-slate-300"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+) : (
+  <p className="mt-2">{post.content}</p>
+)}
 
-              <div className="flex items-center gap-6">
+
+{/* FILE PREVIEW */}
+{post.file?.type === "image" && (
+  <img
+    src={`http://localhost:5000${post.file.url}`}
+    alt="post upload"
+    className="object-cover mt-3 border rounded-xl max-h-96"
+  />
+)}
+{post.file?.type === "file" && (
+  <a
+    href={`http://localhost:5000${post.file.url}`}
+    target="_blank"
+    rel="noreferrer"
+    className="inline-flex items-center gap-2 mt-3 text-indigo-600 hover:underline"
+  >📎 {post.file.name}
+  </a>
+)}
+
+              <div className="flex gap-6 mt-3">
                 <button
                   onClick={() => handleLike(post._id)}
                   className="flex items-center gap-1 text-red-500"
@@ -176,6 +290,29 @@ export default function Dashboard() {
                 >
                   💬 {post.comments?.length || 0}
                 </button>
+                {post.user._id === user?._id && (
+  <>
+    <button
+      onClick={() => {
+        setEditingPostId(post._id);
+        setEditText(post.content);
+      }}
+      className="text-sm text-indigo-600 hover:underline"
+    >
+      ✏️ Edit
+    </button>
+
+    <button
+  onClick={() => setDeletePostId(post._id)}
+  className="text-sm text-red-600 hover:underline"
+>
+  🗑 Delete
+</button>
+
+  </>
+)}
+
+
               </div>
             </div>
           ))
@@ -190,11 +327,17 @@ export default function Dashboard() {
 
             <div className="mb-4 space-y-3 overflow-y-auto max-h-60">
               {activePost.comments?.map((c, i) => (
-                <div key={i} className="p-3 bg-slate-100 rounded-xl">
-                  <p className="font-medium">{c.user.name}</p>
-                  <p>{c.text}</p>
-                </div>
-              ))}
+  <div key={i} className="p-3 bg-slate-100 rounded-xl">
+    <p
+      className="font-medium text-indigo-600 cursor-pointer hover:underline"
+      onClick={() => navigate(`/profile/${c.user._id}`)}
+    >
+      {c.user.name}
+    </p>
+    <p>{c.text}</p>
+  </div>
+))}
+
             </div>
 
             <textarea
@@ -222,6 +365,16 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {deletePostId && (
+  <DeleteConfirmModal
+    message="Are you sure you want to delete this post? This action cannot be undone."
+    onCancel={() => setDeletePostId(null)}
+    onConfirm={handleDelete}
+    loading={deleting}
+  />
+)}
+
     </>
   );
 }

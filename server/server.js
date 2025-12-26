@@ -4,6 +4,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require("path");
 const connectDB = require('./config/db');
 
 // 2. load environment variables from .env file
@@ -12,9 +13,14 @@ connectDB();
 // 3. create the express app
 const app = express();
 
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "uploads"))
+);
 // 4. middleware
 app.use(cors());         // allow requests from frontend
 app.use(express.json()); // allow backend to read JSON from requests
+
 
 const userRoutes = require('./routes/userRoutes');
 app.use('/api/users', userRoutes);
