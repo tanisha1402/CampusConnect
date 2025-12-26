@@ -6,6 +6,9 @@ import CommentsModal from "./CommentsModal";
 export default function CommunityPosts({ posts, setPosts }) {
   const [activePost, setActivePost] = useState(null);
   const navigate = useNavigate();
+  const userId = JSON.parse(localStorage.getItem("user"))?._id;
+  const [editingPostId, setEditingPostId] = useState(null);
+  const [editText, setEditText] = useState("");
 
   const handleLike = async (postId) => {
     const res = await axiosInstance.post(`/posts/${postId}/like`);
@@ -13,6 +16,26 @@ export default function CommunityPosts({ posts, setPosts }) {
       prev.map((p) => (p._id === postId ? res.data : p))
     );
   };
+ const handleEdit = async (postId) => {
+  if (!editText.trim()) return;
+
+  try {
+    const res = await axiosInstance.put(`/posts/${postId}`, {
+      content: editText,
+    });
+
+    setPosts((prev) =>
+      prev.map((p) => (p._id === postId ? res.data : p))
+    );
+
+    setEditingPostId(null);
+    setEditText("");
+  } catch (err) {
+    console.error("Edit post error", err);
+    alert(err.response?.data?.message || "Failed to edit post");
+  }
+};
+
 
   return (
     <>
@@ -47,9 +70,36 @@ export default function CommunityPosts({ posts, setPosts }) {
                   </p>
                 </div>
               </div>
+{/* CONTENT */}
+{editingPostId === post._id ? (
+  <div className="mt-2 space-y-2">
+    <textarea
+      className="w-full p-2 border rounded-lg"
+      value={editText}
+      onChange={(e) => setEditText(e.target.value)}
+    />
+    <div className="flex gap-2">
+      <button
+        onClick={() => handleEdit(post._id)}
+        className="px-3 py-1 text-white bg-indigo-500 rounded-lg"
+      >
+        Save
+      </button>
+      <button
+        onClick={() => {
+          setEditingPostId(null);
+          setEditText("");
+        }}
+        className="px-3 py-1 rounded-lg bg-slate-300"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+) : (
+  <p className="mt-2">{post.content}</p>
+)}
 
-              {/* CONTENT */}
-              <p className="mt-2">{post.content}</p>
 
               {/* FILE PREVIEW */}
               {post.file?.type === "image" && (
@@ -86,6 +136,18 @@ export default function CommunityPosts({ posts, setPosts }) {
                 >
                   💬 {post.comments?.length || 0}
                 </button>
+              {post.user._id === userId && (
+  <button
+    onClick={() => {
+      setEditingPostId(post._id);
+      setEditText(post.content);
+    }}
+    className="text-sm text-indigo-600 hover:underline"
+  >
+    ✏️ Edit
+  </button>
+)}
+
               </div>
             </div>
           ))

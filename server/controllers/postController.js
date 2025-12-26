@@ -41,6 +41,53 @@ const createPost = async (req, res) => {
   }
 };
 
+// EDIT POST
+const editPost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post)
+      return res.status(404).json({ message: "Post not found" });
+
+    // 🔐 Ownership check
+    if (post.user.toString() !== req.user.userId) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    post.content = req.body.content || post.content;
+    await post.save();
+
+    const populated = await Post.findById(post._id)
+      .populate("user", "name role")
+      .populate("comments.user", "name");
+
+    res.json(populated);
+  } catch (err) {
+    console.error("Edit post error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// DELETE POST
+const deletePost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post)
+      return res.status(404).json({ message: "Post not found" });
+
+    // 🔐 Ownership check
+    if (post.user.toString() !== req.user.userId) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    await post.deleteOne();
+    res.json({ message: "Post deleted", postId: post._id });
+  } catch (err) {
+    console.error("Delete post error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 
 // GET POSTS
@@ -158,5 +205,7 @@ module.exports = {
   getCommunityPosts,
   likePost,
   commentOnPost,
-  getUserPosts
+  getUserPosts,
+  editPost,
+  deletePost
 };
