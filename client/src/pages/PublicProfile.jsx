@@ -1,9 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
+import { AuthContext } from "../context/AuthContext";
+import FollowButton from "../components/FollowButton";
+
 
 export default function PublicProfile() {
   const { id } = useParams();
+
+  const { user: currentUser } = useContext(AuthContext);
 
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -34,10 +39,27 @@ export default function PublicProfile() {
 
   return (
     <div className="p-10">
-      <h1 className="mb-4 text-3xl font-bold">{user.name}</h1>
-      <p className="text-slate-700">{user.role}</p>
-      <p className="text-slate-600">{user.bio}</p>
-      <p className="text-slate-600">{user.department}</p>
+      <div className="flex items-center justify-between mb-6">
+  <div>
+    <h1 className="text-3xl font-bold">{user.name}</h1>
+    <p className="text-slate-700">{user.role}</p>
+    <p className="text-slate-600">{user.bio}</p>
+    <p className="text-slate-600">{user.department}</p>
+  </div>
+
+  {/* FOLLOW BUTTON */}
+  {currentUser?._id !== user._id && (
+    <FollowButton
+      userId={user._id}
+      initialFollowing={user.followers?.includes(currentUser._id)}
+    />
+  )}
+</div>
+<p className="mb-6 text-sm text-slate-500">
+  👥 {user.followers?.length || 0} followers ·{" "}
+  {user.following?.length || 0} following
+</p>
+
 
       <h2 className="mt-8 mb-4 text-2xl font-bold">Posts by {user.name}</h2>
 

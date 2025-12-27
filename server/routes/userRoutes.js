@@ -1,7 +1,7 @@
 // routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser, getMe, updateUserProfile, getUserById, searchUsers } = require('../controllers/userController');
+const { registerUser, loginUser, getMe, updateUserProfile, getUserById, searchUsers, toggleFollow } = require('../controllers/userController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
 // POST /api/users/register
@@ -18,5 +18,7 @@ router.put('/me', authMiddleware, updateUserProfile);
 router.get("/", authMiddleware, searchUsers);
 
 router.get("/:id", authMiddleware, getUserById);
+
+router.post("/:id/follow", authMiddleware, toggleFollow);
 
 module.exports = router;
