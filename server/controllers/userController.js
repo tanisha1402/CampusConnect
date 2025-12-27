@@ -164,9 +164,11 @@ const toggleFollow = async (req, res) => {
     await targetUser.save();
 
     res.json({
-      isFollowing: !isFollowing,
-      followersCount: targetUser.followers.length,
-    });
+  isFollowing: !isFollowing,
+  followers: targetUser.followers.map(id => id.toString()),
+  following: currentUser.following.map(id => id.toString()),
+});
+
   } catch (error) {
     console.error("Follow error:", error);
     res.status(500).json({ message: "Server error" });

@@ -36,6 +36,11 @@ export default function PublicProfile() {
   if (loading) return <p className="p-10">Loading profile…</p>;
 
   if (!user) return <p className="p-10 text-red-500">User not found.</p>;
+const isFollowing = user.followers?.some(
+  (f) => (f._id || f).toString() === currentUser._id
+);
+
+
 
   return (
     <div className="p-10">
@@ -49,10 +54,11 @@ export default function PublicProfile() {
 
   {/* FOLLOW BUTTON */}
   {currentUser?._id !== user._id && (
-    <FollowButton
-      userId={user._id}
-      initialFollowing={user.followers?.includes(currentUser._id)}
-    />
+  <FollowButton
+  userId={user._id}
+  isFollowing={isFollowing}
+  setUser={setUser}
+/>
   )}
 </div>
 <p className="mb-6 text-sm text-slate-500">
