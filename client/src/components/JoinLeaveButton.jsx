@@ -14,16 +14,24 @@ export default function JoinLeaveButton({ communityId, members, setCommunity }) 
     setCommunity(res.data);
   };
 
-  const handleLeave = async () => {
-    try {
-      const res = await axiosInstance.post(
-        `/communities/${communityId}/leave`
-      );
-      setCommunity(res.data);
-    } catch (err) {
-      alert(err.response?.data?.message || "Error leaving community");
+const handleLeave = async () => {
+  try {
+    const res = await axiosInstance.post(
+      `/communities/${communityId}/leave`
+    );
+
+    // 🚨 COMMUNITY WAS DELETED
+    if (res.data?.deleted) {
+      window.location.href = "/dashboard";
+      return;
     }
-  };
+
+    // ✅ NORMAL LEAVE
+    setCommunity(res.data);
+  } catch (err) {
+    alert(err.response?.data?.message || "Error leaving community");
+  }
+};
 
   return (
     <button
