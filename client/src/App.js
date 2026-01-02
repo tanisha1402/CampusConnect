@@ -12,6 +12,8 @@ import CreateCommunity from "./pages/CreateCommunity";
 import CommunityPage from "./pages/CommunityPage";
 import Search from "./pages/Search";
 import AppLayout from "./layouts/AppLayout";
+import Inbox from "./pages/Inbox";
+import Chat from "./pages/Chat";
 
 function App() {
   return (
@@ -25,6 +27,9 @@ function App() {
   <Route path="/profile/:id" element={<PublicProfile />} />
   <Route path="/communities/create" element={<CreateCommunity />} />
   <Route path="/communities/:id" element={<CommunityPage />} />
+  <Route path="/messages" element={<Inbox />} />
+  <Route path="/messages/:id" element={<Chat />} />
+
   <Route path="/search" element={<Search />} />
 </Route>
         {/* You can add more later */}
