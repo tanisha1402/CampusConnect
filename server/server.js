@@ -30,10 +30,15 @@ app.use('/api/posts', postRoutes);
 
 app.use("/api/communities", require("./routes/communityRoutes"));
 
+
+const messageRoutes = require("./routes/messageRoutes");
+app.use("/api/messages", messageRoutes);
+
 // 5. test route
 app.get('/', (req, res) => {
   res.send('CampusConnect API is running...');
 });
+
 
 // 6. start the server
 const PORT = process.env.PORT || 5000;

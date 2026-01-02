@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
 import { AuthContext } from "../context/AuthContext";
@@ -9,6 +10,8 @@ export default function PublicProfile() {
   const { id } = useParams();
 
   const { user: currentUser } = useContext(AuthContext);
+
+  const navigate = useNavigate();
 
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -66,6 +69,19 @@ const isFollowing = user.followers?.some(
   {user.following?.length || 0} following
 </p>
 
+{currentUser?._id !== user._id && (
+  <button
+    onClick={async () => {
+      const res = await axiosInstance.post("/messages/start", {
+        userId: user._id,
+      });
+      navigate(`/messages/${res.data._id}`);
+    }}
+    className="px-4 py-2 ml-3 text-white bg-indigo-500 rounded-lg hover:bg-indigo-600"
+  >
+    Message
+  </button>
+)}
 
       <h2 className="mt-8 mb-4 text-2xl font-bold">Posts by {user.name}</h2>
 
