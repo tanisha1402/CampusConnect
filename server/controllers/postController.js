@@ -56,6 +56,7 @@ const editPost = async (req, res) => {
     }
 
     post.content = req.body.content;
+    post.editedAt = new Date();
 
     await post.save(); // ✅ updatedAt changes here
 

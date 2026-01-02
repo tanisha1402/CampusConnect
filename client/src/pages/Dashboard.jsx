@@ -221,9 +221,11 @@ const handleCreatePost = async (e) => {
                   </p>
                   <p className="text-xs text-slate-500">
   {new Date(post.createdAt).toLocaleString()}
-  {post.updatedAt && post.updatedAt !== post.createdAt && (
-    <span className="ml-1 italic">(edited)</span>
-  )}
+  {post.editedAt && (
+  <span className="ml-1 italic text-slate-400">
+    (edited {new Date(post.editedAt).toLocaleString()})
+  </span>
+)}
 </p>
                 </div>
               </div>

@@ -23,6 +23,10 @@ const communitySchema = new mongoose.Schema(
           enum: ["admin", "member"],
           default: "member",
         },
+        joinedAt: {
+          type: Date,
+          default: Date.now,
+        },
       },
     ],
   },

@@ -87,9 +87,12 @@ const handleDelete = async () => {
                   </p>
                   <p className="text-xs text-slate-500">
   {new Date(post.createdAt).toLocaleString()}
-  {post.updatedAt && post.updatedAt !== post.createdAt && (
-    <span className="ml-1 italic">(edited {new Date(post.updatedAt).toLocaleString()})</span>
-  )}
+  {post.editedAt && (
+  <span className="ml-1 italic text-slate-400">
+    (edited {new Date(post.editedAt).toLocaleString()})
+  </span>
+)}
+
 </p>
 
                 </div>
@@ -194,7 +197,7 @@ const handleDelete = async () => {
         <CommentsModal
   post={activePost}
   setPosts={setPosts}
-  setActivePost={setActivePost}   // ✅ add this
+  setActivePost={setActivePost}  
   onClose={() => setActivePost(null)}
 />
       )}

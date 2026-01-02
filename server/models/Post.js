@@ -26,6 +26,11 @@ const postSchema = new mongoose.Schema(
       name: { type: String },
     },
 
+    editedAt: {
+    type: Date,
+    default: null
+    },
+
     likes: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -46,6 +51,7 @@ const postSchema = new mongoose.Schema(
         },
       },
     ],
+    
   },
   { timestamps: true }
 );
