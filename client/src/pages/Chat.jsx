@@ -35,14 +35,21 @@ export default function Chat() {
       
       {/* Messages */}
       <div className="flex-1 p-4 space-y-3 overflow-y-auto">
-        {messages.map((m) => (
-          <ChatBubble
-            key={m._id}
-            message={m}
-            isMe={m.sender === user._id}
-          />
-        ))}
-      </div>
+  {messages.length === 0 ? (
+    <p className="mt-10 text-center text-slate-400">
+      No messages yet. Say hi 👋
+    </p>
+  ) : (
+    messages.map((m) => (
+      <ChatBubble
+        key={m._id}
+        message={m}
+        isMe={m.sender === user._id}
+      />
+    ))
+  )}
+</div>
+
 
       {/* Input */}
       <div className="flex gap-2 p-4 border-t">

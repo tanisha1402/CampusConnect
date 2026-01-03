@@ -35,7 +35,7 @@ exports.getInbox = async (req, res) => {
       participants: req.user.userId, // ✅ FIXED
     })
       .populate("participants", "name")
-      .populate("lastMessage")
+      .populate("lastMessage", "text createdAt")
       .sort({ updatedAt: -1 });
 
     res.json(conversations);
