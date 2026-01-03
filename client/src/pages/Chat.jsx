@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext , useRef } from "react";
 import { useParams } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
 import { AuthContext } from "../context/AuthContext";
@@ -7,9 +7,10 @@ import ChatBubble from "../components/ChatBubble";
 export default function Chat() {
   const { id } = useParams(); // conversationId
   const { user } = useContext(AuthContext);
-
+  
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
+  const bottomRef = useRef(null);
 
   useEffect(() => {
     const loadMessages = async () => {
@@ -18,7 +19,7 @@ export default function Chat() {
     };
     loadMessages();
   }, [id]);
-
+  
   const sendMessage = async () => {
     if (!text.trim()) return;
 
@@ -29,6 +30,9 @@ export default function Chat() {
     setMessages((prev) => [...prev, res.data]);
     setText("");
   };
+  useEffect(() => {
+  bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+}, [messages]);
 
   return (
     <div className="flex flex-col max-w-3xl mx-auto h-[80vh] bg-white shadow rounded-xl">
@@ -48,6 +52,7 @@ export default function Chat() {
       />
     ))
   )}
+  <div ref={bottomRef} />
 </div>
 
 
