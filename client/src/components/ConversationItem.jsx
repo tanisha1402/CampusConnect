@@ -20,9 +20,14 @@ export default function ConversationItem({ conversation, onClick }) {
       <div className="flex-1">
         <p className="font-semibold">{otherUser.name}</p>
         <p className="text-sm truncate text-slate-500">
-          {conversation.lastMessage?.text || "No messages yet"}
+          {conversation.lastMessage?.text || "No messages yet. Say hi 👋"}
         </p>
       </div>
+      {conversation.unreadCount > 0 && (
+    <span className="px-2 py-1 text-xs text-white bg-red-500 rounded-full">
+      {conversation.unreadCount}
+    </span>
+  )}
     </div>
   );
 }
