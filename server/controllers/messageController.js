@@ -32,31 +32,57 @@ exports.startConversation = async (req, res) => {
 exports.getInbox = async (req, res) => {
   try {
     const conversations = await Conversation.find({
-      participants: req.user.userId, // ✅ FIXED
+      participants: req.user.userId,
     })
       .populate("participants", "name")
-      .populate("lastMessage", "text createdAt")
+      .populate("lastMessage")
       .sort({ updatedAt: -1 });
 
-    res.json(conversations);
+    const result = await Promise.all(
+      conversations.map(async (c) => {
+        const unreadCount = await Message.countDocuments({
+          conversation: c._id,
+          sender: { $ne: req.user.userId },
+          seenBy: { $ne: req.user.userId },
+        });
+
+        return {
+          ...c.toObject(),
+          unreadCount,
+        };
+      })
+    );
+
+    res.json(result);
   } catch (err) {
-    console.error("getInbox error:", err);
+    console.error(err);
     res.status(500).json({ message: "Failed to load inbox" });
   }
 };
+
 
 /**
  * Get messages in conversation
  */
 exports.getMessages = async (req, res) => {
   try {
+    // mark messages as seen
+    await Message.updateMany(
+      {
+        conversation: req.params.id,
+        seenBy: { $ne: req.user.userId },
+      },
+      {
+        $addToSet: { seenBy: req.user.userId },
+      }
+    );
+
     const messages = await Message.find({
       conversation: req.params.id,
-    }).sort({ createdAt: 1 });
+    }).sort("createdAt");
 
     res.json(messages);
   } catch (err) {
-    console.error("getMessages error:", err);
     res.status(500).json({ message: "Failed to load messages" });
   }
 };
