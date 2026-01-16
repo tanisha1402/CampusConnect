@@ -145,6 +145,33 @@ const isSaved = (post) => {
   );
 };
 
+const isFollowingUser = (targetUserId) => {
+  if (!user?.following) return false;
+  return user.following.some(
+    (id) => id.toString() === targetUserId
+  );
+};
+
+const toggleFollowUser = async (targetUserId) => {
+  try {
+    const res = await axiosInstance.post(
+      `/users/${targetUserId}/follow`
+    );
+
+    // 🔥 update auth user everywhere
+    const updatedUser = {
+      ...user,
+      followers: res.data.followers,
+      following: res.data.following,
+    };
+
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    window.dispatchEvent(new Event("storage")); // optional safety
+  } catch (err) {
+    console.error("Follow toggle error", err);
+  }
+};
+
 const savePost = async (postId) => {
   try {
     const res = await axiosInstance.post(`/posts/${postId}/save`);
@@ -258,18 +285,19 @@ const savePost = async (postId) => {
 
   {/* 3 DOT MENU */}
   <PostOptionsMenu
-    post={post}
-    currentUserId={user?._id}
-    isSaved={isSaved(post)}
-    isFollowing={false}
-    onSaveToggle={() => savePost(post._id)}
-    onEdit={() => {
-      setEditingPostId(post._id);
-      setEditText(post.content);
-    }}
-    onDelete={() => setDeletePostId(post._id)}
-    onFollowToggle={() => {}}
-  />
+  post={post}
+  currentUserId={user?._id}
+  isSaved={isSaved(post)}
+  isFollowing={isFollowingUser(post.user._id)}
+  onSaveToggle={() => savePost(post._id)}
+  onEdit={() => {
+    setEditingPostId(post._id);
+    setEditText(post.content);
+  }}
+  onDelete={() => setDeletePostId(post._id)}
+  onFollowToggle={() => toggleFollowUser(post.user._id)}
+/>
+
 </div>
 
               {editingPostId === post._id ? (
