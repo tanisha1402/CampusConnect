@@ -6,9 +6,9 @@ import DeleteConfirmModal from "../components/DeleteConfirmModal";
 import PostOptionsMenu from "../components/PostOptionsMenu";
 
 export default function Dashboard() {
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
-
+  
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState("");
   const [loading, setLoading] = useState(true);
@@ -154,23 +154,21 @@ const isFollowingUser = (targetUserId) => {
 
 const toggleFollowUser = async (targetUserId) => {
   try {
-    const res = await axiosInstance.post(
-      `/users/${targetUserId}/follow`
-    );
+    await axiosInstance.post(
+  `/users/${targetUserId}/follow`
+);
 
-    // 🔥 update auth user everywhere
-    const updatedUser = {
-      ...user,
-      followers: res.data.followers,
-      following: res.data.following,
-    };
+// 🔥 always trust backend, never guess
+const me = await axiosInstance.get("/users/me");
 
-    localStorage.setItem("user", JSON.stringify(updatedUser));
-    window.dispatchEvent(new Event("storage")); // optional safety
+setUser(me.data);
+localStorage.setItem("user", JSON.stringify(me.data));
+
   } catch (err) {
     console.error("Follow toggle error", err);
   }
 };
+
 
 const savePost = async (postId) => {
   try {

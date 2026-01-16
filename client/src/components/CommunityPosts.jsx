@@ -9,9 +9,9 @@ import PostOptionsMenu from "./PostOptionsMenu";
 export default function CommunityPosts({ posts, setPosts }) {
   const [activePost, setActivePost] = useState(null);
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
   const userId = user?._id;
-
+  
   const [editingPostId, setEditingPostId] = useState(null);
   const [editText, setEditText] = useState("");
   const [deletePostId, setDeletePostId] = useState(null);
@@ -67,28 +67,27 @@ const isSaved = (post) => {
     (u) => u._id?.toString() === userId || u.toString() === userId
   );
 };
-const isFollowingUser = (targetUserId) => {
-  const currentUser = JSON.parse(localStorage.getItem("user"));
-  if (!currentUser?.following) return false;
 
-  return currentUser.following.some(
+
+const isFollowingUser = (targetUserId) => {
+  if (!user?.following) return false;
+  return user.following.some(
     (id) => id.toString() === targetUserId
   );
 };
 
 const toggleFollowUser = async (targetUserId) => {
   try {
-    const res = await axiosInstance.post(
-      `/users/${targetUserId}/follow`
-    );
+    await axiosInstance.post(
+  `/users/${targetUserId}/follow`
+);
 
-    const updatedUser = {
-      ...JSON.parse(localStorage.getItem("user")),
-      followers: res.data.followers,
-      following: res.data.following,
-    };
+// 🔥 always trust backend, never guess
+const me = await axiosInstance.get("/users/me");
 
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+setUser(me.data);
+localStorage.setItem("user", JSON.stringify(me.data));
+
   } catch (err) {
     console.error("Follow toggle error", err);
   }
