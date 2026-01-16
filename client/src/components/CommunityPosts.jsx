@@ -1,13 +1,17 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useContext } from "react";
 import axiosInstance from "../utils/axiosInstance";
+import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import CommentsModal from "./CommentsModal";
 import DeleteConfirmModal from "./DeleteConfirmModal";
+import PostOptionsMenu from "./PostOptionsMenu";
 
 export default function CommunityPosts({ posts, setPosts }) {
   const [activePost, setActivePost] = useState(null);
   const navigate = useNavigate();
-  const userId = JSON.parse(localStorage.getItem("user"))?._id;
+  const { user } = useContext(AuthContext);
+  const userId = user?._id;
+
   const [editingPostId, setEditingPostId] = useState(null);
   const [editText, setEditText] = useState("");
   const [deletePostId, setDeletePostId] = useState(null);
@@ -20,7 +24,7 @@ export default function CommunityPosts({ posts, setPosts }) {
       prev.map((p) => (p._id === postId ? res.data : p))
     );
   };
- const handleEdit = async (postId) => {
+  const handleEdit = async (postId) => {
   if (!editText.trim()) return;
 
   try {
@@ -67,23 +71,9 @@ const isSaved = (post) => {
 const savePost = async (postId) => {
   try {
     const res = await axiosInstance.post(`/posts/${postId}/save`);
-
     setPosts(prev =>
-      prev.map(p => {
-        if (p._id !== postId) return p;
-
-        const alreadySaved = isSaved(p);
-
-        return {
-          ...p,
-          savedBy: alreadySaved
-            ? p.savedBy.filter(
-                (id) => id.toString() !== userId
-              )
-            : [...(p.savedBy || []), userId],
-        };
-      })
-    );
+  prev.map(p => (p._id === postId ? res.data : p))
+);
   } catch (err) {
     console.error("Save post error", err);
   }
@@ -103,33 +93,48 @@ const savePost = async (postId) => {
               key={post._id}
               className="p-4 bg-white shadow rounded-xl"
             >
-              {/* USER HEADER */}
-              <div className="flex items-center gap-3 mb-2">
-                <div className="flex items-center justify-center w-10 h-10 font-semibold text-white bg-indigo-400 rounded-full">
-                  {post.user.name.charAt(0).toUpperCase()}
-                </div>
+         {/* USER HEADER + MENU */}
+<div className="flex items-start justify-between mb-2">
+  <div className="flex items-center gap-3">
+    <div className="flex items-center justify-center w-10 h-10 font-semibold text-white bg-indigo-400 rounded-full">
+      {post.user?.name?.charAt(0)?.toUpperCase() || "U"}
+    </div>
 
-                <div>
-                  <p
-                    className="font-semibold text-indigo-600 cursor-pointer hover:underline"
-                    onClick={() =>
-                      navigate(`/profile/${post.user._id}`)
-                    }
-                  >
-                    {post.user?.name || "Unknown User"}
-                  </p>
-                  <p className="text-xs text-slate-500">
-  {new Date(post.createdAt).toLocaleString()}
-  {post.editedAt && (
-  <span className="ml-1 italic text-slate-400">
-    (edited {new Date(post.editedAt).toLocaleString()})
-  </span>
-)}
+    <div>
+      <p
+        className="font-semibold text-indigo-600 cursor-pointer hover:underline"
+        onClick={() => navigate(`/profile/${post.user._id}`)}
+      >
+        {post.user?.name || "Unknown User"}
+      </p>
 
-</p>
+      <p className="text-xs text-slate-500">
+        {new Date(post.createdAt).toLocaleString()}
+        {post.editedAt && (
+          <span className="ml-1 italic text-slate-400">
+            (edited {new Date(post.editedAt).toLocaleString()})
+          </span>
+        )}
+      </p>
+    </div>
+  </div>
 
-                </div>
-              </div>
+  {/* 3 DOT MENU */}
+  <PostOptionsMenu
+    post={post}
+    currentUserId={userId}
+    isSaved={isSaved(post)}
+    isFollowing={false}
+    onSaveToggle={() => savePost(post._id)}
+    onEdit={() => {
+      setEditingPostId(post._id);
+      setEditText(post.content);
+    }}
+    onDelete={() => setDeletePostId(post._id)}
+    onFollowToggle={() => {}}
+  />
+</div>
+
 {/* CONTENT */}
 {editingPostId === post._id ? (
   <div className="mt-2 space-y-2">
@@ -196,37 +201,6 @@ const savePost = async (postId) => {
                 >
                   💬 {post.comments?.length || 0}
                 </button>
-    {post.user._id === userId && (
-  <>
-    <button
-      onClick={() => {
-        setEditingPostId(post._id);
-        setEditText(post.content);
-      }}
-      className="text-sm text-indigo-600 hover:underline"
-    >
-      ✏️ Edit
-    </button>
-
-    <button
-  onClick={() => setDeletePostId(post._id)}
-  className="text-sm text-red-600 hover:underline"
->
-  🗑 Delete
-</button>
-  </>
-)}
-
-{/* EVERYONE */}
-<button
-  onClick={() => savePost(post._id)}
-  className={`flex items-center gap-1 ${
-    isSaved(post) ? "text-indigo-600" : "text-slate-500"
-  }`}
->
-  {isSaved(post) ? "🔖" : "📑"}
-</button>
-
               </div>
             </div>
           ))

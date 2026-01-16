@@ -51,7 +51,7 @@ export default function AppLayout() {
         onClick={() => navigate("/saved")}
         className="cursor-pointer hover:text-primary"
           >
-        🔖 Saved Posts
+        Saved Posts
         </li>
 
         </ul>

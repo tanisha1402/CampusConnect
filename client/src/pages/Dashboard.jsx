@@ -3,6 +3,7 @@ import axiosInstance from "../utils/axiosInstance";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import DeleteConfirmModal from "../components/DeleteConfirmModal";
+import PostOptionsMenu from "../components/PostOptionsMenu";
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
@@ -147,23 +148,10 @@ const isSaved = (post) => {
 const savePost = async (postId) => {
   try {
     const res = await axiosInstance.post(`/posts/${postId}/save`);
-
     setPosts(prev =>
-      prev.map(p => {
-        if (p._id !== postId) return p;
+  prev.map(p => (p._id === postId ? res.data : p))
+);
 
-        const alreadySaved = isSaved(p);
-
-        return {
-          ...p,
-          savedBy: alreadySaved
-            ? p.savedBy.filter(
-                (id) => id.toString() !== userId
-              )
-            : [...(p.savedBy || []), userId],
-        };
-      })
-    );
   } catch (err) {
     console.error("Save post error", err);
   }
@@ -242,28 +230,47 @@ const savePost = async (postId) => {
               key={post._id}
               className="p-5 bg-white border shadow-md rounded-2xl"
             >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="flex items-center justify-center w-10 h-10 font-semibold text-white bg-indigo-400 rounded-full">
-                  {post.user.name.charAt(0).toUpperCase()}
-                </div>
+             {/* POST HEADER + MENU */}
+<div className="flex items-start justify-between mb-3">
+  <div className="flex items-center gap-3">
+    <div className="flex items-center justify-center w-10 h-10 font-semibold text-white bg-indigo-400 rounded-full">
+      {post.user?.name?.charAt(0)?.toUpperCase() || "U"}
+    </div>
 
-                <div>
-                  <p
-                    className="font-semibold text-indigo-600 cursor-pointer hover:underline"
-                    onClick={() => navigate(`/profile/${post.user._id}`)}
-                  >
-                    {post.user?.name || "Unknown User"}
-                  </p>
-                  <p className="text-xs text-slate-500">
-  {new Date(post.createdAt).toLocaleString()}
-  {post.editedAt && (
-  <span className="ml-1 italic text-slate-400">
-    (edited {new Date(post.editedAt).toLocaleString()})
-  </span>
-)}
-</p>
-                </div>
-              </div>
+    <div>
+      <p
+        className="font-semibold text-indigo-600 cursor-pointer hover:underline"
+        onClick={() => navigate(`/profile/${post.user._id}`)}
+      >
+        {post.user?.name || "Unknown User"}
+      </p>
+
+      <p className="text-xs text-slate-500">
+        {new Date(post.createdAt).toLocaleString()}
+        {post.editedAt && (
+          <span className="ml-1 italic text-slate-400">
+            (edited {new Date(post.editedAt).toLocaleString()})
+          </span>
+        )}
+      </p>
+    </div>
+  </div>
+
+  {/* 3 DOT MENU */}
+  <PostOptionsMenu
+    post={post}
+    currentUserId={user?._id}
+    isSaved={isSaved(post)}
+    isFollowing={false}
+    onSaveToggle={() => savePost(post._id)}
+    onEdit={() => {
+      setEditingPostId(post._id);
+      setEditText(post.content);
+    }}
+    onDelete={() => setDeletePostId(post._id)}
+    onFollowToggle={() => {}}
+  />
+</div>
 
               {editingPostId === post._id ? (
   <div className="mt-2 space-y-2">
@@ -327,37 +334,6 @@ const savePost = async (postId) => {
                 >
                   💬 {post.comments?.length || 0}
                 </button>
-                {post.user._id === user?._id && (
-  <>
-    <button
-      onClick={() => {
-        setEditingPostId(post._id);
-        setEditText(post.content);
-      }}
-      className="text-sm text-indigo-600 hover:underline"
-    >
-      ✏️ Edit
-    </button>
-
-    <button
-  onClick={() => setDeletePostId(post._id)}
-  className="text-sm text-red-600 hover:underline"
->
-  🗑 Delete
-</button>
-  </>
-)}
-
-{/* EVERYONE */}
-<button
-  onClick={() => savePost(post._id)}
-  className={`flex items-center gap-1 ${
-    isSaved(post) ? "text-indigo-600" : "text-slate-500"
-  }`}
->
-  {isSaved(post) ? "🔖" : "📑"}
-</button>
-
               </div>
             </div>
           ))
