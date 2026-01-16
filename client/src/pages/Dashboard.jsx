@@ -328,7 +328,7 @@ const savePost = async (postId) => {
                   💬 {post.comments?.length || 0}
                 </button>
                 {post.user._id === user?._id && (
-  <>8
+  <>
     <button
       onClick={() => {
         setEditingPostId(post._id);
