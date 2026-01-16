@@ -1,4 +1,5 @@
 const Post = require("../models/Post");
+const User = require("../models/User");
 
 // CREATE POST
 const createPost = async (req, res) => {
@@ -99,6 +100,7 @@ const getPosts = async (req, res) => {
   try {
     const posts = await Post.find()
       .populate("user", "name role")
+      .select("+savedBy") 
       .populate("comments.user", "name")
       .sort({ createdAt: -1 });
 
@@ -202,6 +204,63 @@ const getUserPosts = async (req, res) => {
   }
 };
 
+// SAVE / UNSAVE POST
+const savePost = async (req, res) => {
+  try {
+    const userId = req.user.userId; // 👈 matches YOUR auth middleware
+    const postId = req.params.id;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const alreadySaved = user.savedPosts
+      .map(id => id.toString())
+      .includes(postId);
+
+    if (alreadySaved) {
+      user.savedPosts = user.savedPosts.filter(
+        id => id.toString() !== postId
+      );
+    } else {
+      user.savedPosts.push(postId);
+    }
+
+    await user.save();
+
+     const populatedPost = await Post.findById(postId)
+      .populate("user", "name role")
+      .populate("comments.user", "name");
+
+    res.json(populatedPost);
+  }catch (err) {
+    console.error("Save post error:", err);
+    res.status(500).json({ message: "Failed to save post" });
+  }
+};
+
+// GET SAVED POSTS
+const getSavedPosts = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const user = await User.findById(userId).populate({
+      path: "savedPosts",
+      populate: {
+        path: "user",
+        select: "name role",
+      },
+    });
+
+    res.json(user.savedPosts);
+  } catch (err) {
+    console.error("Get saved posts error:", err);
+    res.status(500).json({ message: "Failed to load saved posts" });
+  }
+};
+
 
 module.exports = {
   createPost,
@@ -211,5 +270,7 @@ module.exports = {
   commentOnPost,
   getUserPosts,
   editPost,
-  deletePost
+  deletePost,
+  savePost,
+  getSavedPosts,
 };

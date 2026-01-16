@@ -56,6 +56,18 @@ const handleDelete = async () => {
 };
 
 
+const isSaved = (post) =>
+  post.savedBy?.some(
+    (id) => id.toString() === userId
+  );
+
+const savePost = async (postId) => {
+  const res = await axiosInstance.post(`/posts/${postId}/save`);
+  setPosts(prev =>
+    prev.map(p => (p._id === postId ? res.data : p))
+  );
+};
+
 
   return (
     <>
@@ -181,10 +193,18 @@ const handleDelete = async () => {
 >
   🗑 Delete
 </button>
-
   </>
 )}
 
+{/* EVERYONE */}
+<button
+  onClick={() => savePost(post._id)}
+  className={`flex items-center gap-1 ${
+    isSaved(post) ? "text-indigo-600" : "text-slate-500"
+  }`}
+>
+  {isSaved(post) ? "🔖" : "📑"}
+</button>
 
               </div>
             </div>

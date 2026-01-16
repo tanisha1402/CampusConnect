@@ -134,6 +134,41 @@ const handleCreatePost = async (e) => {
   }
 };
 
+const userId = user?._id;
+
+const isSaved = (post) => {
+  if (!post.savedBy || !userId) return false;
+
+  return post.savedBy.some(
+    (u) => u._id?.toString() === userId || u.toString() === userId
+  );
+};
+
+const savePost = async (postId) => {
+  try {
+    const res = await axiosInstance.post(`/posts/${postId}/save`);
+
+    setPosts(prev =>
+      prev.map(p => {
+        if (p._id !== postId) return p;
+
+        const alreadySaved = isSaved(p);
+
+        return {
+          ...p,
+          savedBy: alreadySaved
+            ? p.savedBy.filter(
+                (id) => id.toString() !== userId
+              )
+            : [...(p.savedBy || []), userId],
+        };
+      })
+    );
+  } catch (err) {
+    console.error("Save post error", err);
+  }
+};
+
 
   return (
     <>
@@ -217,7 +252,7 @@ const handleCreatePost = async (e) => {
                     className="font-semibold text-indigo-600 cursor-pointer hover:underline"
                     onClick={() => navigate(`/profile/${post.user._id}`)}
                   >
-                    {post.user.name}
+                    {post.user?.name || "Unknown User"}
                   </p>
                   <p className="text-xs text-slate-500">
   {new Date(post.createdAt).toLocaleString()}
@@ -293,7 +328,7 @@ const handleCreatePost = async (e) => {
                   💬 {post.comments?.length || 0}
                 </button>
                 {post.user._id === user?._id && (
-  <>
+  <>8
     <button
       onClick={() => {
         setEditingPostId(post._id);
@@ -310,10 +345,18 @@ const handleCreatePost = async (e) => {
 >
   🗑 Delete
 </button>
-
   </>
 )}
 
+{/* EVERYONE */}
+<button
+  onClick={() => savePost(post._id)}
+  className={`flex items-center gap-1 ${
+    isSaved(post) ? "text-indigo-600" : "text-slate-500"
+  }`}
+>
+  {isSaved(post) ? "🔖" : "📑"}
+</button>
 
               </div>
             </div>
@@ -380,3 +423,4 @@ const handleCreatePost = async (e) => {
     </>
   );
 }
+

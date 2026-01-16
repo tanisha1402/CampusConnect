@@ -47,6 +47,13 @@ export default function AppLayout() {
           <li onClick={() => navigate("/messages")} className="cursor-pointer hover:text-indigo-500">
             Messages
           </li>
+          <li
+        onClick={() => navigate("/saved")}
+        className="cursor-pointer hover:text-primary"
+          >
+        🔖 Saved Posts
+        </li>
+
         </ul>
 
         <div>
