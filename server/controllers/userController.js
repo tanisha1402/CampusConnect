@@ -130,6 +130,36 @@ const searchUsers = async (req, res) => {
   }
 };
 
+// GET /api/users/suggestions
+const getUserSuggestions = async (req, res) => {
+  try {
+    const currentUserId = req.user.userId;
+
+    const currentUser = await User.findById(currentUserId);
+
+    if (!currentUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const excludeIds = [
+      currentUserId,
+      ...currentUser.following.map(id => id.toString()),
+    ];
+
+    const suggestions = await User.find({
+      _id: { $nin: excludeIds },
+    })
+      .select("name role")
+      .limit(6);
+
+    res.json(suggestions);
+  } catch (error) {
+    console.error("Suggestions error:", error);
+    res.status(500).json({ message: "Failed to load suggestions" });
+  }
+};
+
+
 // FOLLOW / UNFOLLOW USER
 const toggleFollow = async (req, res) => {
   try {
@@ -182,7 +212,8 @@ module.exports = {
   updateUserProfile,
   getUserById,
   searchUsers,
-  toggleFollow
+  toggleFollow,
+  getUserSuggestions,
 
 };
 
