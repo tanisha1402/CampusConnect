@@ -1,18 +1,22 @@
 import axiosInstance from "../utils/axiosInstance";
 
-export default function FollowButton({ userId, isFollowing, setUser }) {
+export default function FollowButton({
+  userId,
+  isFollowing,
+  setAuthUser,
+  onFollowSuccess,
+}) {
 
   const toggleFollow = async () => {
     try {
-      const res = await axiosInstance.post(`/users/${userId}/follow`);
+      await axiosInstance.post(`/users/${userId}/follow`);
 
-      // 🔥 THIS is the key line
-      setUser(prev => ({
-  ...prev,
-  followers: res.data.followers,
-  following: res.data.following
-}));
+      const me = await axiosInstance.get("/users/me");
+      setAuthUser(me.data);
+      localStorage.setItem("user", JSON.stringify(me.data));
 
+      // 🔥 notify parent (PublicProfile)
+      onFollowSuccess?.();
 
     } catch (err) {
       console.error("Follow error", err);

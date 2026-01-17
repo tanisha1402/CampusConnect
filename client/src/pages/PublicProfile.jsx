@@ -9,7 +9,7 @@ import FollowButton from "../components/FollowButton";
 export default function PublicProfile() {
   const { id } = useParams();
 
-  const { user: currentUser } = useContext(AuthContext);
+  const { user: currentUser, setUser: setAuthUser } = useContext(AuthContext);
 
   const navigate = useNavigate();
 
@@ -17,6 +17,11 @@ export default function PublicProfile() {
   const [posts, setPosts] = useState([]);
 
   const [loading, setLoading] = useState(true);
+  
+  const refreshProfileUser = async () => {
+  const res = await axiosInstance.get(`/users/${id}`);
+  setUser(res.data);
+};
 
   useEffect(() => {
     const loadData = async () => {
@@ -60,7 +65,8 @@ const isFollowing = user.followers?.some(
   <FollowButton
   userId={user._id}
   isFollowing={isFollowing}
-  setUser={setUser}
+  setAuthUser={setAuthUser}
+  onFollowSuccess={refreshProfileUser}
 />
   )}
 </div>
