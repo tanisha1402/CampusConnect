@@ -31,7 +31,7 @@ export default function PeopleYouMayKnow() {
         People you may know
       </h3>
 
-      <div className="space-y-4">
+     <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1 people-scroll">
         {users.map(user => (
           <div key={user._id} className="flex items-center justify-between">
             <div

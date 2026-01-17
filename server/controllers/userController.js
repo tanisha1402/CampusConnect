@@ -150,7 +150,6 @@ const getUserSuggestions = async (req, res) => {
       _id: { $nin: excludeIds },
     })
       .select("name role")
-      .limit(6);
 
     res.json(suggestions);
   } catch (error) {

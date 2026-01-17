@@ -2,7 +2,6 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import axiosInstance from "../utils/axiosInstance";
 import { AuthContext } from "../context/AuthContext";
-import PeopleYouMayKnow from "../components/PeopleYouMayKnow";
 
 export default function AppLayout() {
   const { user } = useContext(AuthContext);
@@ -88,10 +87,6 @@ export default function AppLayout() {
         </div>
       </main>
 
-      {/* RIGHT SIDEBAR */}
-  <aside className="hidden p-4 xl:block w-80">
-    <PeopleYouMayKnow />
-  </aside>
   
     </div>
   </div>

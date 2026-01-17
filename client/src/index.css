@@ -8,3 +8,21 @@
   padding: 0;
   box-sizing: border-box;
 }
+/* Hide scrollbar by default */
+.people-scroll::-webkit-scrollbar {
+  width: 0px;
+}
+
+.people-scroll {
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Show scrollbar ONLY when hovering */
+.people-scroll:hover::-webkit-scrollbar {
+  width: 6px;
+}
+
+.people-scroll:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(99, 102, 241, 0.4); /* indigo */
+  border-radius: 10px;
+}
