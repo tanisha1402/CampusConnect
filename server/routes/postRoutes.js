@@ -12,7 +12,9 @@ const {
   commentOnPost,
   getUserPosts,
   editPost,
-  deletePost
+  deletePost,
+  getSavedPosts,
+  savePost,
 } = require("../controllers/postController");
 
 // CREATE POST (with file upload)
@@ -31,6 +33,11 @@ router.get("/community/:id", authMiddleware, getCommunityPosts);
 
 // GET USER POSTS
 router.get("/user/:id", authMiddleware, getUserPosts);
+
+// SAVED POST
+router.get("/saved", authMiddleware, getSavedPosts);  
+router.post("/:id/save", authMiddleware, savePost);
+
 
 // LIKE POST
 router.post("/:id/like", authMiddleware, likePost);

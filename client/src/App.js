@@ -14,6 +14,7 @@ import Search from "./pages/Search";
 import AppLayout from "./layouts/AppLayout";
 import Inbox from "./pages/Inbox";
 import Chat from "./pages/Chat";
+import SavedPosts from "./pages/SavedPosts";
 
 function App() {
   return (
@@ -31,6 +32,8 @@ function App() {
   <Route path="/messages/:id" element={<Chat />} />
 
   <Route path="/search" element={<Search />} />
+  <Route path="/saved" element={<SavedPosts />} />
+
 </Route>
         {/* You can add more later */}
         {/* <Route path="/profile" element={<Profile />} /> */}

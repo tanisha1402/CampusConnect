@@ -1,4 +1,5 @@
 const Post = require("../models/Post");
+const User = require("../models/User");
 
 // CREATE POST
 const createPost = async (req, res) => {
@@ -99,6 +100,7 @@ const getPosts = async (req, res) => {
   try {
     const posts = await Post.find()
       .populate("user", "name role")
+      .select("+savedBy") 
       .populate("comments.user", "name")
       .sort({ createdAt: -1 });
 
@@ -111,10 +113,11 @@ const getPosts = async (req, res) => {
 
 const getCommunityPosts = async (req, res) => {
   try {
-    const posts = await Post.find({ community: req.params.id })
-      .populate("user", "name role")
-      .populate("comments.user", "name")
-      .sort({ createdAt: -1 });
+  const posts = await Post.find({ community: req.params.id })
+  .populate("user", "name role")
+  .populate("comments.user", "name")
+  .select("+savedBy") // 👈 ADD THIS
+  .sort({ createdAt: -1 });
 
     res.json(posts);
   } catch (err) {
@@ -191,9 +194,10 @@ const getUserPosts = async (req, res) => {
   try {
     const userId = req.params.id;
 
-    const posts = await Post.find({ user: userId })
-      .populate("user", "name role")
-      .sort({ createdAt: -1 });
+  const posts = await Post.find({ user: userId })
+  .populate("user", "name role")
+  .select("+savedBy") // 👈 ADD
+  .sort({ createdAt: -1 });
 
     res.json(posts);
   } catch (error) {
@@ -201,6 +205,66 @@ const getUserPosts = async (req, res) => {
     res.status(500).json({ message: "Server error while fetching user posts" });
   }
 };
+
+// SAVE / UNSAVE POST
+const savePost = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const postId = req.params.id;
+
+    const post = await Post.findById(postId).select("+savedBy");
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    const alreadySaved = post.savedBy.some(
+      id => id.toString() === userId
+    );
+
+    if (alreadySaved) {
+      post.savedBy = post.savedBy.filter(
+        id => id.toString() !== userId
+      );
+    } else {
+      post.savedBy.push(userId);
+    }
+
+    await post.save();
+
+    const populatedPost = await Post.findById(postId)
+      .populate("user", "name role")
+      .populate("comments.user", "name")
+      .select("+savedBy");
+
+    res.json(populatedPost);
+  } catch (err) {
+    console.error("Save post error:", err);
+    res.status(500).json({ message: "Failed to save post" });
+  }
+};
+
+
+
+// GET SAVED POSTS
+const getSavedPosts = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const posts = await Post.find({
+      savedBy: userId,
+    })
+      .populate("user", "name role")
+      .populate("comments.user", "name")
+      .select("+savedBy")
+      .sort({ createdAt: -1 });
+
+    res.json(posts);
+  } catch (err) {
+    console.error("Get saved posts error:", err);
+    res.status(500).json({ message: "Failed to load saved posts" });
+  }
+};
+
 
 
 module.exports = {
@@ -211,5 +275,7 @@ module.exports = {
   commentOnPost,
   getUserPosts,
   editPost,
-  deletePost
+  deletePost,
+  savePost,
+  getSavedPosts,
 };

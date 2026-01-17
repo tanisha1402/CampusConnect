@@ -3,11 +3,12 @@ import axiosInstance from "../utils/axiosInstance";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import DeleteConfirmModal from "../components/DeleteConfirmModal";
+import PostOptionsMenu from "../components/PostOptionsMenu";
 
 export default function Dashboard() {
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
-
+  
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState("");
   const [loading, setLoading] = useState(true);
@@ -134,6 +135,53 @@ const handleCreatePost = async (e) => {
   }
 };
 
+const userId = user?._id;
+
+const isSaved = (post) => {
+  if (!post.savedBy || !userId) return false;
+
+  return post.savedBy.some(
+    (u) => u._id?.toString() === userId || u.toString() === userId
+  );
+};
+
+const isFollowingUser = (targetUserId) => {
+  if (!user?.following) return false;
+  return user.following.some(
+    (id) => id.toString() === targetUserId
+  );
+};
+
+const toggleFollowUser = async (targetUserId) => {
+  try {
+    await axiosInstance.post(
+  `/users/${targetUserId}/follow`
+);
+
+// 🔥 always trust backend, never guess
+const me = await axiosInstance.get("/users/me");
+
+setUser(me.data);
+localStorage.setItem("user", JSON.stringify(me.data));
+
+  } catch (err) {
+    console.error("Follow toggle error", err);
+  }
+};
+
+
+const savePost = async (postId) => {
+  try {
+    const res = await axiosInstance.post(`/posts/${postId}/save`);
+    setPosts(prev =>
+  prev.map(p => (p._id === postId ? res.data : p))
+);
+
+  } catch (err) {
+    console.error("Save post error", err);
+  }
+};
+
 
   return (
     <>
@@ -207,28 +255,48 @@ const handleCreatePost = async (e) => {
               key={post._id}
               className="p-5 bg-white border shadow-md rounded-2xl"
             >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="flex items-center justify-center w-10 h-10 font-semibold text-white bg-indigo-400 rounded-full">
-                  {post.user.name.charAt(0).toUpperCase()}
-                </div>
+             {/* POST HEADER + MENU */}
+<div className="flex items-start justify-between mb-3">
+  <div className="flex items-center gap-3">
+    <div className="flex items-center justify-center w-10 h-10 font-semibold text-white bg-indigo-400 rounded-full">
+      {post.user?.name?.charAt(0)?.toUpperCase() || "U"}
+    </div>
 
-                <div>
-                  <p
-                    className="font-semibold text-indigo-600 cursor-pointer hover:underline"
-                    onClick={() => navigate(`/profile/${post.user._id}`)}
-                  >
-                    {post.user.name}
-                  </p>
-                  <p className="text-xs text-slate-500">
-  {new Date(post.createdAt).toLocaleString()}
-  {post.editedAt && (
-  <span className="ml-1 italic text-slate-400">
-    (edited {new Date(post.editedAt).toLocaleString()})
-  </span>
-)}
-</p>
-                </div>
-              </div>
+    <div>
+      <p
+        className="font-semibold text-indigo-600 cursor-pointer hover:underline"
+        onClick={() => navigate(`/profile/${post.user._id}`)}
+      >
+        {post.user?.name || "Unknown User"}
+      </p>
+
+      <p className="text-xs text-slate-500">
+        {new Date(post.createdAt).toLocaleString()}
+        {post.editedAt && (
+          <span className="ml-1 italic text-slate-400">
+            (edited {new Date(post.editedAt).toLocaleString()})
+          </span>
+        )}
+      </p>
+    </div>
+  </div>
+
+  {/* 3 DOT MENU */}
+  <PostOptionsMenu
+  post={post}
+  currentUserId={user?._id}
+  isSaved={isSaved(post)}
+  isFollowing={isFollowingUser(post.user._id)}
+  onSaveToggle={() => savePost(post._id)}
+  onEdit={() => {
+    setEditingPostId(post._id);
+    setEditText(post.content);
+  }}
+  onDelete={() => setDeletePostId(post._id)}
+  onFollowToggle={() => toggleFollowUser(post.user._id)}
+/>
+
+</div>
 
               {editingPostId === post._id ? (
   <div className="mt-2 space-y-2">
@@ -292,29 +360,6 @@ const handleCreatePost = async (e) => {
                 >
                   💬 {post.comments?.length || 0}
                 </button>
-                {post.user._id === user?._id && (
-  <>
-    <button
-      onClick={() => {
-        setEditingPostId(post._id);
-        setEditText(post.content);
-      }}
-      className="text-sm text-indigo-600 hover:underline"
-    >
-      ✏️ Edit
-    </button>
-
-    <button
-  onClick={() => setDeletePostId(post._id)}
-  className="text-sm text-red-600 hover:underline"
->
-  🗑 Delete
-</button>
-
-  </>
-)}
-
-
               </div>
             </div>
           ))
@@ -380,3 +425,4 @@ const handleCreatePost = async (e) => {
     </>
   );
 }
+
