@@ -15,6 +15,8 @@ const {
   deletePost,
   getSavedPosts,
   savePost,
+  createResourcePost,
+  getResourcePosts,
 } = require("../controllers/postController");
 
 // CREATE POST (with file upload)
@@ -28,8 +30,19 @@ router.post(
 // GET ALL POSTS
 router.get("/", authMiddleware, getPosts);
 
+//  RESOURCE HUB 
+router.get("/resource", authMiddleware, getResourcePosts);
+
+router.post(
+  "/resource",
+  authMiddleware,
+  upload.single("file"),
+  createResourcePost
+);
+
 // GET COMMUNITY POSTS
 router.get("/community/:id", authMiddleware, getCommunityPosts);
+
 
 // GET USER POSTS
 router.get("/user/:id", authMiddleware, getUserPosts);

@@ -38,6 +38,13 @@ export default function AppLayout() {
           <li onClick={() => navigate("/dashboard")} className="cursor-pointer hover:text-primary">
             Dashboard
           </li>
+          <li
+  onClick={() => navigate("/resources")}
+  className="cursor-pointer hover:text-primary"
+>
+  Resource Hub
+</li>
+
           <li onClick={() => navigate("/profile")} className="cursor-pointer hover:text-primary">
             My Profile
           </li>
