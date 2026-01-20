@@ -5,23 +5,31 @@ import { useNavigate } from "react-router-dom";
 export default function CreateCommunity() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [cover, setCover] = useState(null);
 
   const navigate = useNavigate();
 
   const handleCreate = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axiosInstance.post("/communities", {
-        name,
-        description,
-      });
+  e.preventDefault();
+  try {
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("description", description);
+    if (cover) formData.append("cover", cover);
 
-      navigate(`/communities/${res.data._id}`); // go to that community page
-    } catch (err) {
-      console.error("Error creating community:", err);
-      alert("Failed to create community");
-    }
-  };
+    const res = await axiosInstance.post(
+      "/communities",
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+
+    navigate(`/communities/${res.data._id}`);
+  } catch (err) {
+    console.error("Error creating community:", err);
+    alert("Failed to create community");
+  }
+};
+
 
   return (
     <div className="max-w-xl p-10 mx-auto">
@@ -44,6 +52,12 @@ export default function CreateCommunity() {
           onChange={(e) => setDescription(e.target.value)}
           required
         />
+        <input
+  type="file"
+  accept="image/*"
+  onChange={(e) => setCover(e.target.files[0])}
+  className="w-full"
+/>
 
         <button className="w-full p-3 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">
           Create

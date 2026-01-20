@@ -77,6 +77,14 @@ const handleDeleteCommunity = async () => {
 
   return (
     <div className="max-w-5xl p-6 mx-auto space-y-6">
+      {/* COVER IMAGE */}
+<div className="relative w-full h-48 overflow-hidden shadow rounded-2xl">
+  <img
+    src={`http://localhost:5000${community.coverImage}`}
+    alt="community cover"
+    className="object-cover w-full h-full"
+  />
+</div>
       <CommunityAbout community={community} />
 
       <JoinLeaveButton
@@ -114,7 +122,7 @@ const handleDeleteCommunity = async () => {
       </div>
     ))}
     {isAdmin && (
-  <div className="p-4 bg-white shadow rounded-xl border border-red-200">
+  <div className="p-4 bg-white border border-red-200 shadow rounded-xl">
     <h3 className="mb-2 font-bold text-red-600">Danger Zone</h3>
 
     <button

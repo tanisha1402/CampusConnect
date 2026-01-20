@@ -13,14 +13,12 @@ connectDB();
 // 3. create the express app
 const app = express();
 
-app.use(
-  "/uploads",
-  express.static(path.join(__dirname, "uploads"))
-);
+
 // 4. middleware
 app.use(cors());         // allow requests from frontend
 app.use(express.json()); // allow backend to read JSON from requests
 
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 const userRoutes = require('./routes/userRoutes');
 app.use('/api/users', userRoutes);

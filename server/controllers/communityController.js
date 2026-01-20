@@ -4,7 +4,14 @@ const Post = require("../models/Post");
 // Create community
 const createCommunity = async (req, res) => {
   try {
+    
     const { name, description } = req.body;
+
+let coverImage;
+if (req.file) {
+  coverImage = `/uploads/communities/${req.file.filename}`;
+}
+
 
     const exists = await Community.findOne({ name });
     if (exists) {
@@ -14,6 +21,7 @@ const createCommunity = async (req, res) => {
     const community = await Community.create({
       name,
       description,
+      coverImage,
       createdBy: req.user.userId,
       members: [
         {
@@ -286,4 +294,5 @@ module.exports = {
   toggleAdmin,
   deleteCommunity,
 };
+
 
