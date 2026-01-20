@@ -254,7 +254,12 @@ export default function ResourceHub() {
                       </p>
 
                       <p className="text-xs text-slate-500">
-                        {new Date(post.createdAt).toLocaleString()}
+                      {new Date(post.createdAt).toLocaleString()}
+                      {post.editedAt && (
+                      <span className="ml-1 italic text-slate-400">
+                      (edited {new Date(post.editedAt).toLocaleString()})
+                      </span>
+                      )}
                       </p>
                     </div>
                   </div>
