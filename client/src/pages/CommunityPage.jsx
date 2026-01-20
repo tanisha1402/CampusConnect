@@ -25,6 +25,11 @@ export default function CommunityPage() {
   const [editingCover, setEditingCover] = useState(false);
   const [newCover, setNewCover] = useState(null);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [adminTab, setAdminTab] = useState("make"); // make | cover | delete
+const [searchTerm, setSearchTerm] = useState("");
+const [selectedMember, setSelectedMember] = useState(null);
+const [confirmAdminOpen, setConfirmAdminOpen] = useState(false);
+
 
 
 
@@ -64,6 +69,15 @@ const isAdmin = useMemo(() => {
   );
 }, [community, user]);
 
+const filteredMembers = useMemo(() => {
+  if (!community) return [];
+  return community.members.filter(
+  (m) =>
+    m.user &&
+    m.user.name.toLowerCase().includes(searchTerm.toLowerCase())
+);
+}, [community, searchTerm]);
+
 const handleUpdateCover = async () => {
   if (!newCover) return;
 
@@ -86,6 +100,22 @@ const handleUpdateCover = async () => {
     alert(err.response?.data?.message || "Failed to update cover");
   } finally {
     setUploadingCover(false);
+  }
+};
+
+const handleMakeAdmin = async () => {
+  if (!selectedMember) return;
+
+  try {
+    const res = await axiosInstance.put(
+      `/communities/${id}/admins/${selectedMember.user._id}`
+    );
+    setCommunity(res.data);
+    setConfirmAdminOpen(false);
+    setSelectedMember(null);
+    setSearchTerm("");
+  } catch (err) {
+    alert("Failed to make admin");
   }
 };
 
@@ -126,12 +156,8 @@ const handleDeleteCommunity = async () => {
       {/* LEFT INFO */}
       <div>
         <h1 className="text-3xl font-bold">{community.name}</h1>
-        <p className="mt-2 text-slate-600">
-          {community.description}
-        </p>
         <p className="mt-3 text-sm text-slate-500">
-          👥 {community.members.length} members · 👑{" "}
-          {community.members.filter(m => m.role === "admin").length} admin(s)
+          {community.members.length} members
         </p>
       </div>
 
@@ -180,97 +206,164 @@ const handleDeleteCommunity = async () => {
       <p className="text-slate-600">{community.description}</p>
     </div>
 
-    {/* ADMIN PANEL */}
-    {isAdmin && (
-      <div className="p-6 space-y-4 bg-white border shadow rounded-2xl border-indigo-200">
-        <h3 className="text-lg font-bold text-indigo-600">
-          Admin Panel
-        </h3>
+   {/* ADMIN PANEL */}
+{isAdmin && (
+  <div className="p-6 bg-white border shadow rounded-2xl border-indigo-200">
+    
+    <h3 className="mb-6 text-xl font-bold text-indigo-600">
+      Community Admin Panel
+    </h3>
 
-        {/* EDIT COVER */}
-        <div className="p-4 border rounded-xl">
-          {!editingCover ? (
-            <button
-              onClick={() => setEditingCover(true)}
-              className="px-4 py-2 text-white bg-indigo-500 rounded-lg hover:bg-indigo-600"
-            >
-              Edit Cover Page
-            </button>
-          ) : (
-            <div className="space-y-3">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setNewCover(e.target.files[0])}
-              />
-              <div className="flex gap-3">
-                <button
-                  onClick={handleUpdateCover}
-                  disabled={uploadingCover}
-                  className="px-4 py-2 text-white bg-green-600 rounded-lg"
-                >
-                  {uploadingCover ? "Uploading..." : "Save Cover"}
-                </button>
-                <button
-                  onClick={() => {
-                    setEditingCover(false);
-                    setNewCover(null);
-                  }}
-                  className="px-4 py-2 bg-slate-300 rounded-lg"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+    {/* ADMIN TABS */}
+    <div className="flex gap-6 mb-6 border-b">
+      {[
+        { id: "make", label: "Make Admin" },
+        { id: "cover", label: "Edit Cover" },
+        { id: "delete", label: "Delete Community" },
+      ].map((tab) => (
+        <button
+          key={tab.id}
+          onClick={() => setAdminTab(tab.id)}
+          className={`pb-3 font-semibold transition ${
+            adminTab === tab.id
+              ? "border-b-2 border-indigo-600 text-indigo-600"
+              : "text-slate-500 hover:text-indigo-600"
+          }`}
+        >
+          {tab.label}
+        </button>
+      ))}
+    </div>
 
-        {/* MEMBERS ROLE MANAGEMENT */}
-        <div className="p-4 border rounded-xl">
-          <h4 className="mb-3 font-semibold">Manage Members</h4>
+    {/* 🟣 MAKE ADMIN TAB */}
+    {adminTab === "make" && (
+      <div className="space-y-5">
 
-          {community.members.map((m) => (
+        {/* SEARCH BAR */}
+        <input
+          type="text"
+          placeholder="Search member by name..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-300"
+        />
+
+        {/* MEMBERS LIST */}
+        <div className="space-y-3 max-h-64 overflow-y-auto">
+          {filteredMembers.map((m) => (
             <div
               key={m.user._id}
-              className="flex items-center justify-between py-2"
+              className="flex items-center justify-between p-3 border rounded-xl hover:bg-slate-50"
             >
-              <span>
-                {m.user.name}
-                {m.role === "admin" && " 👑"}
-              </span>
+              <div>
+                <p className="font-semibold">{m.user.name}</p>
+                <p className="text-xs text-slate-500 capitalize">
+                  {m.role}
+                </p>
+              </div>
 
-              {m.user._id !== user._id && (
+              {m.role !== "admin" && m.user._id !== user._id && (
                 <button
-                  onClick={async () => {
-                    const res = await axiosInstance.put(
-                      `/communities/${id}/admins/${m.user._id}`
-                    );
-                    setCommunity(res.data);
+                  onClick={() => {
+                    setSelectedMember(m);
+                    setConfirmAdminOpen(true);
                   }}
-                  className="px-3 py-1 text-sm text-white bg-indigo-500 rounded-lg"
+                  className="px-4 py-1 text-sm text-white bg-indigo-500 rounded-lg hover:bg-indigo-600"
                 >
-                  {m.role === "admin" ? "Remove Admin" : "Make Admin"}
+                  Make Admin
                 </button>
+              )}
+
+              {m.role === "admin" && (
+                <span className="text-sm text-indigo-600">👑 Admin</span>
               )}
             </div>
           ))}
         </div>
+      </div>
+    )}
 
-        {/* DANGER ZONE */}
-        <div className="p-4 border border-red-200 rounded-xl bg-red-50">
-          <h4 className="mb-2 font-bold text-red-600">Danger Zone</h4>
-          <button
-            onClick={() => setDeleteOpen(true)}
-            className="px-4 py-2 text-white bg-red-600 rounded-lg"
-          >
-            Delete Community
-          </button>
+    {/* 🟣 EDIT COVER TAB */}
+    {adminTab === "cover" && (
+      <div className="space-y-6">
+
+        <div className="overflow-hidden border rounded-2xl">
+          <img
+            src={`http://localhost:5000${community.coverImage}`}
+            alt="current cover"
+            className="object-cover w-full h-48"
+          />
         </div>
+
+        {!editingCover ? (
+          <button
+            onClick={() => setEditingCover(true)}
+            className="px-6 py-3 text-white bg-indigo-500 rounded-xl hover:bg-indigo-600"
+          >
+            Change Cover Image
+          </button>
+        ) : (
+          <div className="p-4 space-y-4 border rounded-xl bg-slate-50">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setNewCover(e.target.files[0])}
+            />
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleUpdateCover}
+                disabled={uploadingCover}
+                className="px-5 py-2 text-white bg-green-600 rounded-lg"
+              >
+                {uploadingCover ? "Uploading..." : "Save New Cover"}
+              </button>
+
+              <button
+                onClick={() => {
+                  setEditingCover(false);
+                  setNewCover(null);
+                }}
+                className="px-5 py-2 bg-slate-300 rounded-lg"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    )}
+
+    {/* 🟣 DELETE COMMUNITY TAB */}
+    {adminTab === "delete" && (
+      <div className="p-6 space-y-4 border border-red-200 rounded-xl bg-red-50">
+
+        <h4 className="text-lg font-bold text-red-600">
+          Danger Zone
+        </h4>
+
+        <p className="text-slate-700">
+          Deleting this community will permanently remove:
+        </p>
+
+        <ul className="ml-5 text-sm list-disc text-slate-600">
+          <li>All posts</li>
+          <li>All members</li>
+          <li>All admin roles</li>
+        </ul>
+
+        <button
+          onClick={() => setDeleteOpen(true)}
+          className="px-6 py-3 mt-3 text-white bg-red-600 rounded-xl hover:bg-red-700"
+        >
+          Delete Community Forever
+        </button>
       </div>
     )}
   </div>
 )}
-
+</div>
+)}
 
       {/* POSTS TAB */}
 {activeTab === "posts" && (
@@ -316,6 +409,45 @@ const handleDeleteCommunity = async () => {
     </div>
   </div>
 )}
+
+{/* CONFIRM MAKE ADMIN MODAL */}
+{confirmAdminOpen && selectedMember && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+    <div className="p-6 bg-white rounded-2xl w-[420px]">
+      <h2 className="mb-4 text-xl font-bold text-indigo-600">
+        Confirm Admin Promotion
+      </h2>
+
+      <p className="mb-6 text-slate-700">
+        Are you sure you want to make{" "}
+        <span className="font-semibold">
+          {selectedMember.user.name}
+        </span>{" "}
+        an admin of this community?
+      </p>
+
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => {
+            setConfirmAdminOpen(false);
+            setSelectedMember(null);
+          }}
+          className="px-4 py-2 bg-slate-300 rounded-lg"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={handleMakeAdmin}
+          className="px-4 py-2 text-white bg-indigo-600 rounded-lg"
+        >
+          Yes, Make Admin
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
       {deleteOpen && (
   <DeleteConfirmModal
