@@ -44,7 +44,12 @@ export default function AppLayout() {
 >
   Resource Hub
 </li>
-
+ <li
+  onClick={() => navigate("/events")}
+  className="cursor-pointer hover:text-primary"
+>
+  Event Feed
+</li>
           <li onClick={() => navigate("/profile")} className="cursor-pointer hover:text-primary">
             My Profile
           </li>

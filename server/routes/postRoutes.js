@@ -17,6 +17,8 @@ const {
   savePost,
   createResourcePost,
   getResourcePosts,
+  createEventPost,
+  getEventPosts,
 } = require("../controllers/postController");
 
 // CREATE POST (with file upload)
@@ -38,6 +40,15 @@ router.post(
   authMiddleware,
   upload.single("file"),
   createResourcePost
+);
+
+// EVENT FEED
+router.get("/event", authMiddleware, getEventPosts);
+router.post(
+  "/event",
+  authMiddleware,
+  upload.single("file"),
+  createEventPost
 );
 
 // GET COMMUNITY POSTS

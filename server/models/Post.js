@@ -7,12 +7,13 @@ const postSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    type: {
-  type: String,
-  enum: ["normal", "community", "resource"],
-  default: "normal",
-},
 
+
+  type: {
+  type: String,
+  enum: ["normal", "community", "resource", "event"], // 👈 ADD event
+  default: "normal",
+  },
 
     content: {
       type: String,

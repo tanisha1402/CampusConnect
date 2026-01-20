@@ -16,6 +16,8 @@ import Inbox from "./pages/Inbox";
 import Chat from "./pages/Chat";
 import SavedPosts from "./pages/SavedPosts";
 import ResourceHub from "./pages/ResourceHub";
+import EventFeed from "./pages/EventFeed";
+
 function App() {
   return (
     <Router>
@@ -25,6 +27,7 @@ function App() {
         <Route element={<AppLayout />}>
   <Route path="/dashboard" element={<Dashboard />} />
   <Route path="/resources" element={<ResourceHub />} />
+  <Route path="/events" element={<EventFeed />} />
   <Route path="/profile" element={<Profile />} />
   <Route path="/profile/:id" element={<PublicProfile />} />
   <Route path="/communities/create" element={<CreateCommunity />} />
