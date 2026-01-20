@@ -15,6 +15,10 @@ const {
   deletePost,
   getSavedPosts,
   savePost,
+  createResourcePost,
+  getResourcePosts,
+  createEventPost,
+  getEventPosts,
 } = require("../controllers/postController");
 
 // CREATE POST (with file upload)
@@ -28,8 +32,28 @@ router.post(
 // GET ALL POSTS
 router.get("/", authMiddleware, getPosts);
 
+//  RESOURCE HUB 
+router.get("/resource", authMiddleware, getResourcePosts);
+
+router.post(
+  "/resource",
+  authMiddleware,
+  upload.single("file"),
+  createResourcePost
+);
+
+// EVENT FEED
+router.get("/event", authMiddleware, getEventPosts);
+router.post(
+  "/event",
+  authMiddleware,
+  upload.single("file"),
+  createEventPost
+);
+
 // GET COMMUNITY POSTS
 router.get("/community/:id", authMiddleware, getCommunityPosts);
+
 
 // GET USER POSTS
 router.get("/user/:id", authMiddleware, getUserPosts);

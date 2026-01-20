@@ -265,6 +265,106 @@ const getSavedPosts = async (req, res) => {
   }
 };
 
+// CREATE RESOURCE POST
+const createResourcePost = async (req, res) => {
+  try {
+    const { content } = req.body;
+
+    if (!content?.trim() && !req.file) {
+      return res.status(400).json({ message: "Resource cannot be empty" });
+    }
+
+    let fileData = null;
+
+    if (req.file) {
+      fileData = {
+        url: `/uploads/${req.file.filename}`,
+        type: req.file.mimetype.startsWith("image") ? "image" : "file",
+        name: req.file.originalname,
+      };
+    }
+
+    const post = await Post.create({
+      user: req.user.userId,
+      content: content || "",
+      file: fileData,
+      type: "resource",
+    });
+
+    const populated = await Post.findById(post._id)
+      .populate("user", "name role");
+
+    res.status(201).json(populated);
+
+  } catch (err) {
+    console.error("Create resource post error:", err);
+    res.status(500).json({ message: "Failed to create resource post" });
+  }
+};
+
+// GET RESOURCE POSTS
+const getResourcePosts = async (req, res) => {
+  try {
+    const posts = await Post.find({ type: "resource" })
+      .populate("user", "name role")
+      .sort({ createdAt: -1 });
+
+    res.json(posts);
+  } catch (err) {
+    console.error("Get resource posts error:", err);
+    res.status(500).json({ message: "Failed to load resources" });
+  }
+};
+
+// CREATE EVENT POST
+const createEventPost = async (req, res) => {
+  try {
+    const { content } = req.body;
+
+    if (!content?.trim() && !req.file) {
+      return res.status(400).json({ message: "Event cannot be empty" });
+    }
+
+    let fileData = null;
+    if (req.file) {
+      fileData = {
+        url: `/uploads/${req.file.filename}`,
+        type: req.file.mimetype.startsWith("image") ? "image" : "file",
+        name: req.file.originalname,
+      };
+    }
+
+    const post = await Post.create({
+      user: req.user.userId,
+      content: content || "",
+      file: fileData,
+      type: "event",
+    });
+
+    const populated = await Post.findById(post._id)
+      .populate("user", "name role");
+
+    res.status(201).json(populated);
+  } catch (err) {
+    console.error("Create event post error:", err);
+    res.status(500).json({ message: "Failed to create event post" });
+  }
+};
+
+// GET EVENT POSTS
+const getEventPosts = async (req, res) => {
+  try {
+    const posts = await Post.find({ type: "event" })
+      .populate("user", "name role")
+      .sort({ createdAt: -1 });
+
+    res.json(posts);
+  } catch (err) {
+    console.error("Get event posts error:", err);
+    res.status(500).json({ message: "Failed to load events" });
+  }
+};
+
 
 
 module.exports = {
@@ -278,4 +378,8 @@ module.exports = {
   deletePost,
   savePost,
   getSavedPosts,
+  createResourcePost,
+  getResourcePosts,
+  createEventPost,
+  getEventPosts,
 };

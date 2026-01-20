@@ -4,7 +4,14 @@ const Post = require("../models/Post");
 // Create community
 const createCommunity = async (req, res) => {
   try {
+    
     const { name, description } = req.body;
+
+let coverImage;
+if (req.file) {
+  coverImage = `/uploads/communities/${req.file.filename}`;
+}
+
 
     const exists = await Community.findOne({ name });
     if (exists) {
@@ -14,6 +21,7 @@ const createCommunity = async (req, res) => {
     const community = await Community.create({
       name,
       description,
+      coverImage,
       createdBy: req.user.userId,
       members: [
         {
@@ -275,6 +283,41 @@ const deleteCommunity = async (req, res) => {
   }
 };
 
+const updateCommunityCover = async (req, res) => {
+  try {
+    const community = await Community.findById(req.params.id);
+
+    if (!community)
+      return res.status(404).json({ message: "Community not found" });
+
+    // 🔒 check admin
+    const isAdmin = community.members.some(
+      (m) =>
+        m.user.toString() === req.user.userId &&
+        m.role === "admin"
+    );
+
+    if (!isAdmin)
+      return res.status(403).json({ message: "Only admins can update cover" });
+
+    if (!req.file)
+      return res.status(400).json({ message: "No image uploaded" });
+
+        community.coverImage = `/uploads/communities/${req.file.filename}`;
+    await community.save();
+
+    // 🔥 VERY IMPORTANT — re‑populate before sending back
+    const populatedCommunity = await Community.findById(community._id)
+      .populate("members.user", "name email")
+      .populate("createdBy", "name email");
+
+    res.json(populatedCommunity);
+
+  } catch (err) {
+    console.error("Update cover error:", err);
+    res.status(500).json({ message: "Failed to update cover" });
+  }
+};
 
 module.exports = {
   createCommunity,
@@ -285,5 +328,7 @@ module.exports = {
   getMyCommunities,
   toggleAdmin,
   deleteCommunity,
+  updateCommunityCover,
 };
+
 

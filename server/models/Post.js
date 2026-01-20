@@ -8,6 +8,13 @@ const postSchema = new mongoose.Schema(
       required: true,
     },
 
+
+  type: {
+  type: String,
+  enum: ["normal", "community", "resource", "event"], // 👈 ADD event
+  default: "normal",
+  },
+
     content: {
       type: String,
       default: "",

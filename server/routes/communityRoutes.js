@@ -1,6 +1,9 @@
+
 const express = require("express");
 const router = express.Router();
 const auth = require("../middlewares/authMiddleware");
+const uploadCommunityCover = require("../middlewares/communityUpload");
+const { updateCommunityCover } = require("../controllers/communityController");
 
 const {
   createCommunity,
@@ -13,7 +16,10 @@ const {
   deleteCommunity
 } = require("../controllers/communityController");
 // server/routes/communityRoutes.js
-router.post("/", auth, createCommunity);
+
+router.post("/",auth,uploadCommunityCover.single("cover"),createCommunity);
+router.put("/:id/cover",auth,uploadCommunityCover.single("cover"),updateCommunityCover);
+
 router.get("/", auth, getCommunities);
 
 // ✅ FIX: put this ABOVE :id

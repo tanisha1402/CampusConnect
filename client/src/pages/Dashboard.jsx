@@ -4,6 +4,7 @@ import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import DeleteConfirmModal from "../components/DeleteConfirmModal";
 import PostOptionsMenu from "../components/PostOptionsMenu";
+import PeopleYouMayKnow from "../components/PeopleYouMayKnow";
 
 export default function Dashboard() {
   const { user, setUser } = useContext(AuthContext);
@@ -184,7 +185,11 @@ const savePost = async (postId) => {
 
 
   return (
-    <>
+  <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_320px]">
+ 
+  {/* LEFT COLUMN */}
+  <div>
+
       {/* Header */}
       <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-4 mb-10 bg-white shadow-md rounded-2xl">
           <h1 className="text-2xl font-bold text-slate-800">
@@ -421,8 +426,18 @@ const savePost = async (postId) => {
     loading={deleting}
   />
 )}
+  </div>
 
-    </>
+  {/* RIGHT COLUMN */}
+  <aside className="hidden xl:block">
+    <div className="sticky top-2">
+      <PeopleYouMayKnow />
+    </div>
+  </aside>
+
+
+      </div>
   );
 }
+
 

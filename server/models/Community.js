@@ -5,6 +5,11 @@ const communitySchema = new mongoose.Schema(
     name: { type: String, required: true, unique: true },
     description: { type: String },
 
+    coverImage: {
+    type: String,
+    default: "/uploads/defaults/community-cover.jpg"
+    },
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
