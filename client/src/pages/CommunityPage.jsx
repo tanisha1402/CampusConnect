@@ -21,6 +21,10 @@ export default function CommunityPage() {
   const navigate = useNavigate();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [editingCover, setEditingCover] = useState(false);
+  const [newCover, setNewCover] = useState(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
+
 
   useEffect(() => {
     const loadCommunity = async () => {
@@ -58,6 +62,31 @@ const isAdmin = useMemo(() => {
   );
 }, [community, user]);
 
+const handleUpdateCover = async () => {
+  if (!newCover) return;
+
+  try {
+    setUploadingCover(true);
+    const formData = new FormData();
+    formData.append("cover", newCover);
+
+    const res = await axiosInstance.put(
+      `/communities/${id}/cover`,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+
+    setCommunity(res.data);
+    setEditingCover(false);
+    setNewCover(null);
+  } catch (err) {
+    console.error("Update cover error:", err);
+    alert(err.response?.data?.message || "Failed to update cover");
+  } finally {
+    setUploadingCover(false);
+  }
+};
+
 const handleDeleteCommunity = async () => {
   try {
     setDeleting(true);
@@ -93,9 +122,48 @@ const handleDeleteCommunity = async () => {
         setCommunity={setCommunity}
       />
       {isAdmin && (
-  <div className="p-4 bg-white shadow rounded-xl">
+  <div className="p-4 space-y-4 bg-white shadow rounded-xl">
     <h3 className="mb-2 font-bold">Admin Actions</h3>
+         {/* 🔹 EDIT COVER SECTION */}
+    <div className="p-3 border rounded-xl">
+      {!editingCover ? (
+        <button
+          onClick={() => setEditingCover(true)}
+          className="px-4 py-2 text-white bg-indigo-500 rounded-lg hover:bg-indigo-600"
+        >
+          Edit Cover Page
+        </button>
+      ) : (
+        <div className="space-y-3">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setNewCover(e.target.files[0])}
+            className="w-full"
+          />
 
+          <div className="flex gap-3">
+            <button
+              onClick={handleUpdateCover}
+              disabled={uploadingCover}
+              className="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50"
+            >
+              {uploadingCover ? "Uploading..." : "Save Cover"}
+            </button>
+
+            <button
+              onClick={() => {
+                setEditingCover(false);
+                setNewCover(null);
+              }}
+              className="px-4 py-2 rounded-lg bg-slate-300"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
     {community.members.map((m) => (
       <div
         key={m.user._id}
