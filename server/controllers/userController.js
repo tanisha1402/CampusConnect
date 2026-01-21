@@ -2,6 +2,7 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const createNotification = require("../utils/createNotification");
 
 // POST /api/users/register
 const registerUser = async (req, res) => {
@@ -183,6 +184,13 @@ const toggleFollow = async (req, res) => {
       // 🔁 UNFOLLOW
       currentUser.following.pull(targetUserId);
       targetUser.followers.pull(currentUserId);
+
+      // 🔔 NOTIFY TARGET USER
+  await createNotification({
+    user: targetUserId,
+    fromUser: currentUserId,
+    type: "follow",
+  });
     } else {
       // ➕ FOLLOW
       currentUser.following.push(targetUserId);
