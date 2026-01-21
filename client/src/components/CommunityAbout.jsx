@@ -6,8 +6,8 @@ export default function CommunityAbout({ community }) {
       <p className="mt-2 text-slate-600">{community.description}</p>
 
       <p className="mt-2 text-sm text-slate-500">
-  👥 {community.members.length} members ·
-  👑 {
+  {community.members.length} members ·
+  {
     community.members.filter(m => m.role === "admin").length
   } admin(s)
 </p>

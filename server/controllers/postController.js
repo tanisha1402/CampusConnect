@@ -1,5 +1,6 @@
 const Post = require("../models/Post");
 const User = require("../models/User");
+const createNotification = require("../utils/createNotification");
 
 // CREATE POST
 const createPost = async (req, res) => {
@@ -29,7 +30,16 @@ const createPost = async (req, res) => {
       community: communityId || null,
       file: fileData
     });
+    const followers = await User.findById(req.user.userId).select("followers");
 
+for (let followerId of followers.followers) {
+  await createNotification({
+    user: followerId,
+    fromUser: req.user.userId,
+    type: "new_post",
+    post: post._id,
+  });
+}
     const populated = await Post.findById(post._id)
       .populate("user", "name")
       .populate("comments.user", "name");
@@ -142,8 +152,16 @@ const likePost = async (req, res) => {
     if (post.likes?.includes(userId)) {
       post.likes = post.likes.filter(id => id.toString() !== userId);
     } else {
-      post.likes.push(userId);
-    }
+  post.likes.push(userId);
+
+  // 🔔 NOTIFY POST OWNER
+  await createNotification({
+    user: post.user._id,
+    fromUser: userId,
+    type: "like",
+    post: post._id,
+  });
+}
 
     await post.save();
 
@@ -175,6 +193,13 @@ const commentOnPost = async (req, res) => {
     });
 
     await post.save();
+    // 🔔 NOTIFY POST OWNER
+await createNotification({
+  user: post.user,
+  fromUser: userId,
+  type: "comment",
+  post: post._id,
+});
 
     const populated = await Post.findById(postId)
       .populate("user", "name")
@@ -227,6 +252,12 @@ const savePost = async (req, res) => {
       );
     } else {
       post.savedBy.push(userId);
+      await createNotification({
+    user: post.user,
+    fromUser: userId,
+    type: "save",
+    post: post._id,
+  });
     }
 
     await post.save();

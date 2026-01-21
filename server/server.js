@@ -6,6 +6,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require("path");
 const connectDB = require('./config/db');
+const notificationRoutes = require("./routes/notificationRoutes");
 
 // 2. load environment variables from .env file
 dotenv.config();
@@ -31,6 +32,8 @@ app.use("/api/communities", require("./routes/communityRoutes"));
 
 const messageRoutes = require("./routes/messageRoutes");
 app.use("/api/messages", messageRoutes);
+
+app.use("/api/notifications", notificationRoutes);
 
 // 5. test route
 app.get('/', (req, res) => {

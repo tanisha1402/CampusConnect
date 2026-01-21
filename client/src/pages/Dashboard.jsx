@@ -6,6 +6,8 @@ import DeleteConfirmModal from "../components/DeleteConfirmModal";
 import PostOptionsMenu from "../components/PostOptionsMenu";
 import PeopleYouMayKnow from "../components/PeopleYouMayKnow";
 
+import NotificationBell from "../components/NotificationBell";
+
 export default function Dashboard() {
   const { user, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -195,7 +197,8 @@ const savePost = async (postId) => {
           <h1 className="text-2xl font-bold text-slate-800">
             Welcome, {user?.name}
           </h1>
-        
+        {/* 🔔 Notifications */}
+  <NotificationBell />
           <div className="flex items-center justify-center w-12 h-12 font-bold text-white bg-indigo-300 rounded-full shadow-md">
             {user?.name?.charAt(0).toUpperCase()}
           </div>
