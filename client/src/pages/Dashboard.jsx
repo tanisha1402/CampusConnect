@@ -229,20 +229,6 @@ const savePost = async (postId) => {
 )}
 
         </div>
-
-
-      {/* Communities actions */}
-      <div className="p-6 mb-8 bg-white border shadow-xl rounded-3xl border-indigo-200/50">
-        <h2 className="mb-4 text-xl font-bold text-indigo-600">Communities</h2>
-
-        <button
-          onClick={() => navigate("/communities/create")}
-          className="px-4 py-2 text-white transition bg-indigo-500 rounded-xl hover:bg-indigo-600"
-        >
-          Create Community
-        </button>
-      </div>
-
       {/* Create post */}
       <div className="p-6 mb-8 bg-white border shadow-xl rounded-3xl border-indigo-200/50">
         <h2 className="mb-4 text-xl font-semibold">Create a Post</h2>
