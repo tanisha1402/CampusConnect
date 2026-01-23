@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import NotificationBell from "./NotificationBell";
 
 export default function TopNavbar() {
   const navigate = useNavigate();
@@ -17,50 +18,56 @@ export default function TopNavbar() {
 
   return (
     <div className="sticky top-0 z-50 bg-white shadow-md">
-      <div className="flex items-center justify-between px-6 py-3 max-w-7xl mx-auto">
+      {/* FULL WIDTH */}
+      <div className="relative flex items-center h-16 px-6">
 
-        {/* Logo */}
+        {/* LEFT — aligned with sidebar */}
         <h2
-          className="text-2xl font-bold cursor-pointer text-primary"
+          className="text-2xl font-bold cursor-pointer text-primary w-64"
           onClick={() => navigate("/dashboard")}
         >
           CampusConnect
         </h2>
 
-        {/* Center icons */}
-        <div className="flex gap-8 text-2xl">
+        {/* CENTER — true screen center */}
+        <div className="absolute left-1/2 -translate-x-1/2 flex gap-6 text-2xl">
           {navItems.map((item) => (
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`transition ${
+              className={
                 location.pathname === item.path
                   ? "text-primary"
                   : "text-slate-400 hover:text-primary"
-              }`}
+              }
             >
               {item.label}
             </button>
           ))}
         </div>
 
-        {/* Right user */}
-        <div
-          className="flex items-center gap-3 cursor-pointer"
-          onClick={() => navigate("/profile")}
-        >
-          {user?.profilePic ? (
-            <img
-              src={`http://localhost:5000${user.profilePic}`}
-              alt="avatar"
-              className="object-cover w-10 h-10 rounded-full shadow"
-            />
-          ) : (
-            <div className="flex items-center justify-center w-10 h-10 font-semibold text-white bg-indigo-400 rounded-full">
-              {user?.name?.charAt(0)?.toUpperCase() || "U"}
-            </div>
-          )}
+        {/* RIGHT */}
+        <div className="flex items-center gap-4 ml-auto">
+          <NotificationBell />
+
+          <div
+            className="cursor-pointer"
+            onClick={() => navigate("/profile")}
+          >
+            {user?.profilePic ? (
+              <img
+                src={`http://localhost:5000${user.profilePic}`}
+                alt="avatar"
+                className="object-cover w-9 h-9 rounded-full shadow"
+              />
+            ) : (
+              <div className="flex items-center justify-center w-9 h-9 font-semibold text-white bg-indigo-400 rounded-full">
+                {user?.name?.charAt(0)?.toUpperCase() || "U"}
+              </div>
+            )}
+          </div>
         </div>
+
       </div>
     </div>
   );

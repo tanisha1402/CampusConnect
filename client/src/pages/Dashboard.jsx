@@ -216,8 +216,6 @@ const savePost = async (postId) => {
           <h1 className="text-2xl font-bold text-slate-800">
             Welcome, {user?.name}
           </h1>
-        {/* 🔔 Notifications */}
-  <NotificationBell />
           {user?.profilePic ? (
   <img
   src={`http://localhost:5000${user.profilePic}`}
