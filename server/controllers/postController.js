@@ -110,6 +110,7 @@ const getPosts = async (req, res) => {
   try {
     const posts = await Post.find()
       .populate("user", "name role")
+      .populate("user", "name profilePic")
       .select("+savedBy") 
       .populate("comments.user", "name")
       .sort({ createdAt: -1 });
@@ -125,6 +126,7 @@ const getCommunityPosts = async (req, res) => {
   try {
   const posts = await Post.find({ community: req.params.id })
   .populate("user", "name role")
+  .populate("user", "name profilePic")
   .populate("comments.user", "name")
   .select("+savedBy") // 👈 ADD THIS
   .sort({ createdAt: -1 });
@@ -221,6 +223,7 @@ const getUserPosts = async (req, res) => {
 
   const posts = await Post.find({ user: userId })
   .populate("user", "name role")
+  .populate("user", "name profilePic")
   .select("+savedBy") // 👈 ADD
   .sort({ createdAt: -1 });
 
@@ -285,6 +288,7 @@ const getSavedPosts = async (req, res) => {
       savedBy: userId,
     })
       .populate("user", "name role")
+      .populate("user", "name profilePic")
       .populate("comments.user", "name")
       .select("+savedBy")
       .sort({ createdAt: -1 });
@@ -338,6 +342,7 @@ const getResourcePosts = async (req, res) => {
   try {
     const posts = await Post.find({ type: "resource" })
       .populate("user", "name role")
+      .populate("user", "name profilePic")
       .sort({ createdAt: -1 });
 
     res.json(posts);
@@ -387,6 +392,7 @@ const getEventPosts = async (req, res) => {
   try {
     const posts = await Post.find({ type: "event" })
       .populate("user", "name role")
+      .populate("user", "name profilePic")
       .sort({ createdAt: -1 });
 
     res.json(posts);

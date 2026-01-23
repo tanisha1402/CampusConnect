@@ -247,30 +247,39 @@ export default function ResourceHub() {
                 className="p-5 bg-white border shadow-md rounded-2xl"
               >
                 {/* POST HEADER */}
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-10 h-10 font-semibold text-white bg-indigo-400 rounded-full">
-                      {post.user?.name?.charAt(0)?.toUpperCase() || "U"}
-                    </div>
+              <div className="flex items-start justify-between mb-2">
+  <div className="flex items-center gap-3">
+    {/* Avatar */}
+    {post.user?.profilePic ? (
+      <img
+        src={`http://localhost:5000${post.user.profilePic}`}
+        alt="avatar"
+        className="object-cover w-10 h-10 rounded-full shadow"
+      />
+    ) : (
+      <div className="flex items-center justify-center w-10 h-10 font-semibold text-white bg-indigo-400 rounded-full">
+        {post.user?.name?.charAt(0)?.toUpperCase() || "U"}
+      </div>
+    )}
 
-                    <div>
-                      <p
-                        className="font-semibold text-indigo-600 cursor-pointer hover:underline"
-                        onClick={() => navigate(`/profile/${post.user._id}`)}
-                      >
-                        {post.user?.name}
-                      </p>
+    <div>
+      <p
+        className="font-semibold text-indigo-600 cursor-pointer hover:underline"
+        onClick={() => navigate(`/profile/${post.user._id}`)}
+      >
+        {post.user?.name || "Unknown User"}
+      </p>
+      <p className="text-xs text-slate-500">
+        {new Date(post.createdAt).toLocaleString()}
+        {post.editedAt && (
+          <span className="ml-1 italic text-slate-400">
+            (edited {new Date(post.editedAt).toLocaleString()})
+          </span>
+        )}
+      </p>
+    </div>
+  </div>
 
-                      <p className="text-xs text-slate-500">
-                      {new Date(post.createdAt).toLocaleString()}
-                      {post.editedAt && (
-                      <span className="ml-1 italic text-slate-400">
-                      (edited {new Date(post.editedAt).toLocaleString()})
-                      </span>
-                      )}
-                      </p>
-                    </div>
-                  </div>
 
                   <PostOptionsMenu
                     post={post}
