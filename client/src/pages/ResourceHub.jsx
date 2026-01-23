@@ -186,9 +186,17 @@ export default function ResourceHub() {
             Resource Hub
           </h1>
 
-          <div className="flex items-center justify-center w-12 h-12 font-bold text-white bg-indigo-300 rounded-full shadow-md">
-            {user?.name?.charAt(0).toUpperCase()}
-          </div>
+              {user?.profilePic ? (
+  <img
+  src={`http://localhost:5000${user.profilePic}`}
+  alt="user avatar"
+  className="object-cover w-12 h-12 rounded-full shadow-md"
+/>
+) : (
+  <div className="flex items-center justify-center w-12 h-12 font-bold text-white bg-indigo-300 rounded-full shadow-md">
+    {user?.name?.charAt(0).toUpperCase()}
+  </div>
+)}
         </div>
 
         {/* Create resource */}
