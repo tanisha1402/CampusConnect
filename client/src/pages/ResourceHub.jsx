@@ -341,16 +341,18 @@ const handleLike = async (postId) => {
                     </div>
                   </div>
                 ) : (
-                  <p className="mt-2">{post.content}</p>
+                  <p className="mt-2 whitespace-pre-wrap break-words leading-relaxed">
+  {post.content}
+</p>
                 )}
 
                 {/* FILE PREVIEW */}
                 {post.file?.type === "image" && (
                   <img
-                    src={`http://localhost:5000${post.file.url}`}
-                    alt="resource upload"
-                    className="object-cover mt-3 border rounded-xl max-h-96"
-                  />
+  src={`http://localhost:5000${post.file.url}`}
+  alt="event upload"
+  className="w-full object-cover mt-3 border rounded-xl"
+/>
                 )}
                 {post.file?.type === "file" && (
                   <a

@@ -49,14 +49,16 @@ export default function SavedPosts() {
             </div>
 
             {/* POST CONTENT */}
-            <p>{post.content}</p>
+            <p className="mt-2 whitespace-pre-wrap break-words leading-relaxed">
+  {post.content}
+</p>
                {/* 🔥 FILE PREVIEW (MISSING BEFORE) */}
               {post.file?.type === "image" && (
                 <img
-                  src={`http://localhost:5000${post.file.url}`}
-                  alt="post upload"
-                  className="object-cover mt-3 border rounded-xl max-h-96"
-                />
+  src={`http://localhost:5000${post.file.url}`}
+  alt="event upload"
+  className="w-full object-cover mt-3 border rounded-xl"
+/>
               )}
 
               {post.file?.type === "file" && (
