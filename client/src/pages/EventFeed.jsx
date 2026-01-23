@@ -63,16 +63,21 @@ export default function ResourceHub() {
   };
 
   // Like post
-  const handleLike = async (postId) => {
-    try {
-      const res = await axiosInstance.post(`/posts/${postId}/like`);
-      setPosts((prev) =>
-        prev.map((p) => (p._id === postId ? res.data : p))
-      );
-    } catch (err) {
-      console.error("Error liking post", err);
-    }
-  };
+const handleLike = async (postId) => {
+  try {
+    const res = await axiosInstance.post(`/posts/${postId}/like`);
+    setPosts(prev =>
+      prev.map(p =>
+        p._id === postId
+          ? { ...res.data, user: p.user }
+          : p
+      )
+    );
+  } catch (err) {
+    console.error("Error liking post", err);
+  }
+};
+
 
   // Open comments
   const openComments = (post) => {
@@ -88,9 +93,14 @@ export default function ResourceHub() {
         content: editText,
       });
 
-      setPosts((prev) =>
-        prev.map((p) => (p._id === postId ? res.data : p))
-      );
+      setPosts(prev =>
+  prev.map(p =>
+    p._id === postId
+      ? { ...res.data, user: p.user }
+      : p
+  )
+);
+
 
       setEditingPostId(null);
       setEditText("");
@@ -111,9 +121,14 @@ export default function ResourceHub() {
       );
 
       setActivePost(res.data);
-      setPosts((prev) =>
-        prev.map((p) => (p._id === activePost._id ? res.data : p))
-      );
+     setPosts(prev =>
+  prev.map(p =>
+    p._id === activePost._id
+      ? { ...res.data, user: p.user }
+      : p
+  )
+);
+
       setCommentText("");
     } catch (err) {
       console.error("Error adding comment", err);
@@ -166,9 +181,14 @@ export default function ResourceHub() {
   const savePost = async (postId) => {
     try {
       const res = await axiosInstance.post(`/posts/${postId}/save`);
-      setPosts((prev) =>
-        prev.map((p) => (p._id === postId ? res.data : p))
-      );
+      setPosts(prev =>
+  prev.map(p =>
+    p._id === postId
+      ? { ...res.data, user: p.user }
+      : p
+  )
+);
+
     } catch (err) {
       console.error("Save post error", err);
     }

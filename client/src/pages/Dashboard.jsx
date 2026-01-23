@@ -67,15 +67,20 @@ const handleCreatePost = async (e) => {
 
   // Like post
   const handleLike = async (postId) => {
-    try {
-      const res = await axiosInstance.post(`/posts/${postId}/like`);
-      setPosts((prev) =>
-        prev.map((p) => (p._id === postId ? res.data : p))
-      );
-    } catch (err) {
-      console.error("Error liking post", err);
-    }
-  };
+  try {
+    const res = await axiosInstance.post(`/posts/${postId}/like`);
+    setPosts(prev =>
+      prev.map(p =>
+        p._id === postId
+          ? { ...res.data, user: p.user }
+          : p
+      )
+    );
+  } catch (err) {
+    console.error("Error liking post", err);
+  }
+};
+
 
   // Open comments
   const openComments = (post) => {
@@ -90,9 +95,13 @@ const handleCreatePost = async (e) => {
       content: editText,
     });
 
-    setPosts((prev) =>
-      prev.map((p) => (p._id === postId ? res.data : p))
-    );
+    setPosts(prev =>
+  prev.map(p =>
+    p._id === postId
+      ? { ...res.data, user: p.user }
+      : p
+  )
+);
 
     setEditingPostId(null);
     setEditText("");
@@ -113,9 +122,14 @@ const handleCreatePost = async (e) => {
       );
 
       setActivePost(res.data);
-      setPosts((prev) =>
-        prev.map((p) => (p._id === activePost._id ? res.data : p))
-      );
+     setPosts(prev =>
+  prev.map(p =>
+    p._id === activePost._id
+      ? { ...res.data, user: p.user }
+      : p
+  )
+);
+
       setCommentText("");
     } catch (err) {
       console.error("Error adding comment", err);
@@ -177,8 +191,13 @@ const savePost = async (postId) => {
   try {
     const res = await axiosInstance.post(`/posts/${postId}/save`);
     setPosts(prev =>
-  prev.map(p => (p._id === postId ? res.data : p))
+  prev.map(p =>
+    p._id === postId
+      ? { ...res.data, user: p.user }
+      : p
+  )
 );
+
 
   } catch (err) {
     console.error("Save post error", err);

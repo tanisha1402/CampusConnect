@@ -20,9 +20,14 @@ export default function CommunityPosts({ posts, setPosts }) {
 
   const handleLike = async (postId) => {
     const res = await axiosInstance.post(`/posts/${postId}/like`);
-    setPosts((prev) =>
-      prev.map((p) => (p._id === postId ? res.data : p))
-    );
+    setPosts(prev =>
+  prev.map(p =>
+    p._id === postId
+      ? { ...res.data, user: p.user }
+      : p
+  )
+);
+
   };
   const handleEdit = async (postId) => {
   if (!editText.trim()) return;
@@ -32,9 +37,14 @@ export default function CommunityPosts({ posts, setPosts }) {
       content: editText,
     });
 
-    setPosts((prev) =>
-      prev.map((p) => (p._id === postId ? res.data : p))
-    );
+    setPosts(prev =>
+  prev.map(p =>
+    p._id === postId
+      ? { ...res.data, user: p.user }
+      : p
+  )
+);
+
 
     setEditingPostId(null);
     setEditText("");
@@ -98,8 +108,13 @@ const savePost = async (postId) => {
   try {
     const res = await axiosInstance.post(`/posts/${postId}/save`);
     setPosts(prev =>
-  prev.map(p => (p._id === postId ? res.data : p))
+  prev.map(p =>
+    p._id === postId
+      ? { ...res.data, user: p.user }
+      : p
+  )
 );
+
   } catch (err) {
     console.error("Save post error", err);
   }
