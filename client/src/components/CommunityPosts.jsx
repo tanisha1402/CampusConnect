@@ -137,9 +137,18 @@ const savePost = async (postId) => {
          {/* USER HEADER + MENU */}
 <div className="flex items-start justify-between mb-2">
   <div className="flex items-center gap-3">
-    <div className="flex items-center justify-center w-10 h-10 font-semibold text-white bg-indigo-400 rounded-full">
-      {post.user?.name?.charAt(0)?.toUpperCase() || "U"}
-    </div>
+    {/* Avatar */}
+    {post.user?.profilePic ? (
+      <img
+        src={`http://localhost:5000${post.user.profilePic}`}
+        alt="avatar"
+        className="object-cover w-10 h-10 rounded-full shadow"
+      />
+    ) : (
+      <div className="flex items-center justify-center w-10 h-10 font-semibold text-white bg-indigo-400 rounded-full">
+        {post.user?.name?.charAt(0)?.toUpperCase() || "U"}
+      </div>
+    )}
 
     <div>
       <p
@@ -148,7 +157,6 @@ const savePost = async (postId) => {
       >
         {post.user?.name || "Unknown User"}
       </p>
-
       <p className="text-xs text-slate-500">
         {new Date(post.createdAt).toLocaleString()}
         {post.editedAt && (
