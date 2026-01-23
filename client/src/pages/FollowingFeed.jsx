@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import axiosInstance from "../utils/axiosInstance";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import DeleteConfirmModal from "../components/DeleteConfirmModal";
 import PostOptionsMenu from "../components/PostOptionsMenu";
 import CommentsModal from "../components/CommentsModal";
 import PeopleYouMayKnow from "../components/PeopleYouMayKnow";
@@ -15,6 +16,9 @@ export default function FollowingFeed() {
   const [loading, setLoading] = useState(true);
 
   const [activePost, setActivePost] = useState(null);
+  const [deletePostId, setDeletePostId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
 
   useEffect(() => {
     const load = async () => {
@@ -72,15 +76,21 @@ export default function FollowingFeed() {
     }
   };
 
-  const handleDelete = async (postId) => {
-    try {
-      await axiosInstance.delete(`/posts/${postId}`);
-      setPosts((prev) => prev.filter((p) => p._id !== postId));
-    } catch (err) {
-      console.error("Delete post error", err);
-      alert("Failed to delete post");
-    }
-  };
+const handleDelete = async () => {
+  if (!deletePostId) return;
+  try {
+    setDeleting(true);
+    await axiosInstance.delete(`/posts/${deletePostId}`);
+    setPosts((prev) => prev.filter((p) => p._id !== deletePostId));
+    setDeletePostId(null);
+  } catch (err) {
+    console.error("Delete post error", err);
+    alert("Failed to delete post");
+  } finally {
+    setDeleting(false);
+  }
+};
+
 
   if (loading) return <p className="p-6">Loading...</p>;
 
@@ -123,15 +133,16 @@ export default function FollowingFeed() {
             </div>
 
             <PostOptionsMenu
-              post={post}
-              currentUserId={userId}
-              isSaved={isSaved(post)}
-              isFollowing={true}
-              onSaveToggle={() => savePost(post._id)}
-              onEdit={() => {}}
-              onDelete={() => handleDelete(post._id)}
-              onFollowToggle={() => {}}
-            />
+  post={post}
+  currentUserId={userId}
+  isSaved={isSaved(post)}
+  isFollowing={true}
+  onSaveToggle={() => savePost(post._id)}
+  onEdit={() => {}}
+  onDelete={() => setDeletePostId(post._id)}
+  onFollowToggle={() => {}}
+/>
+
           </div>
 
           {/* CONTENT */}
@@ -185,6 +196,14 @@ export default function FollowingFeed() {
           onClose={() => setActivePost(null)}
         />
       )}
+      {deletePostId && (
+  <DeleteConfirmModal
+    message="Are you sure you want to delete this post? This action cannot be undone."
+    onCancel={() => setDeletePostId(null)}
+    onConfirm={handleDelete}
+    loading={deleting}
+  />
+)}
     </div>
 
        {/* RIGHT: People You May Know */}
