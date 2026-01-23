@@ -50,6 +50,25 @@ export default function SavedPosts() {
 
             {/* POST CONTENT */}
             <p>{post.content}</p>
+               {/* 🔥 FILE PREVIEW (MISSING BEFORE) */}
+              {post.file?.type === "image" && (
+                <img
+                  src={`http://localhost:5000${post.file.url}`}
+                  alt="post upload"
+                  className="object-cover mt-3 border rounded-xl max-h-96"
+                />
+              )}
+
+              {post.file?.type === "file" && (
+                <a
+                  href={`http://localhost:5000${post.file.url}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 mt-3 text-indigo-600 hover:underline"
+                >
+                  📎 {post.file.name}
+                </a>
+              )}
 
             <p className="text-xs text-slate-500">
               {new Date(post.createdAt).toLocaleString()}

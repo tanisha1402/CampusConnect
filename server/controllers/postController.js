@@ -222,10 +222,10 @@ const getUserPosts = async (req, res) => {
     const userId = req.params.id;
 
   const posts = await Post.find({ user: userId })
-  .populate("user", "name role")
-  .populate("user", "name profilePic")
-  .select("+savedBy") // 👈 ADD
-  .sort({ createdAt: -1 });
+  .populate("user", "name role profilePic")
+.populate("comments.user", "name")
+.select("content createdAt likes comments savedBy file user editedAt")
+.sort({ createdAt: -1 });
 
     res.json(posts);
   } catch (error) {
@@ -287,11 +287,10 @@ const getSavedPosts = async (req, res) => {
     const posts = await Post.find({
       savedBy: userId,
     })
-      .populate("user", "name role")
-      .populate("user", "name profilePic")
-      .populate("comments.user", "name")
-      .select("+savedBy")
-      .sort({ createdAt: -1 });
+      .populate("user", "name role profilePic")
+.populate("comments.user", "name")
+.select("content createdAt likes comments savedBy file user editedAt")
+.sort({ createdAt: -1 });
 
     res.json(posts);
   } catch (err) {
