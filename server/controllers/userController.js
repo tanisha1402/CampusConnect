@@ -148,7 +148,8 @@ const getUserSuggestions = async (req, res) => {
     const suggestions = await User.find({
       _id: { $nin: excludeIds },
     })
-      .select("name role")
+      .select("name role profilePic")
+
 
     res.json(suggestions);
   } catch (error) {
