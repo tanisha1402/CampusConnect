@@ -75,8 +75,6 @@ const getMe = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, getMe };
-
 // PUT /api/users/me
 const updateUserProfile = async (req, res) => {
   try {

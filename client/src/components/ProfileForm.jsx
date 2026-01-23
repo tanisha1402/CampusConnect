@@ -43,6 +43,13 @@ export default function ProfileForm({ form, setForm, saving, onSave }) {
         placeholder="Short bio"
         rows={3}
       />
+  <input
+  type="file"
+  accept="image/*"
+  onChange={(e) =>
+    setForm({ ...form, avatarFile: e.target.files[0] })
+  }
+/>
 
       <button
         onClick={onSave}

@@ -7,7 +7,7 @@ import ProfileForm from "../components/ProfileForm";
 import MyPosts from "../components/MyPosts";
 
 export default function Profile() {
-  const { user, setUser } = useContext(AuthContext);
+  const {setUser } = useContext(AuthContext);
 
   const [form, setForm] = useState({
     name: "",
@@ -51,6 +51,17 @@ useEffect(() => {
       setUser(res.data);
 
       setSaving(false);
+      if (form.avatarFile) {
+  const fd = new FormData();
+  fd.append("avatar", form.avatarFile);
+
+  const res = await axiosInstance.put("/users/me/avatar", fd, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+  setUser(res.data);
+  localStorage.setItem("user", JSON.stringify(res.data));
+}
       alert("Profile updated!");
     } catch (err) {
       console.error("Error saving profile", err);
