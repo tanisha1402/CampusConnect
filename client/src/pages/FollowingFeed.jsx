@@ -4,6 +4,7 @@ import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import PostOptionsMenu from "../components/PostOptionsMenu";
 import CommentsModal from "../components/CommentsModal";
+import PeopleYouMayKnow from "../components/PeopleYouMayKnow";
 
 export default function FollowingFeed() {
   const { user } = useContext(AuthContext);
@@ -84,7 +85,10 @@ export default function FollowingFeed() {
   if (loading) return <p className="p-6">Loading...</p>;
 
   return (
-    <div className="space-y-5">
+  <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+
+    {/* LEFT: Following Feed */}
+    <div className="space-y-5 lg:col-span-2">
       {posts.map((post) => (
         <div
           key={post._id}
@@ -172,7 +176,7 @@ export default function FollowingFeed() {
         </div>
       ))}
 
-      {/* COMMENTS MODAL */}
+      {/* COMMENTS MODAL — UNTOUCHED */}
       {activePost && (
         <CommentsModal
           post={activePost}
@@ -182,5 +186,12 @@ export default function FollowingFeed() {
         />
       )}
     </div>
-  );
+
+       {/* RIGHT: People You May Know */}
+    <div className="hidden lg:block">
+      <PeopleYouMayKnow />
+    </div>
+
+  </div>
+);
 }
