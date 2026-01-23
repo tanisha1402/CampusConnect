@@ -221,18 +221,19 @@ const getUserPosts = async (req, res) => {
   try {
     const userId = req.params.id;
 
-  const posts = await Post.find({ user: userId })
-  .populate("user", "name role profilePic")
-.populate("comments.user", "name")
-.select("content createdAt likes comments savedBy file user editedAt")
-.sort({ createdAt: -1 });
+    const posts = await Post.find({ user: userId })
+      .populate("user", "name role profilePic")
+      .populate("comments.user", "name")
+      .select("content createdAt likes comments savedBy file user editedAt")
+      .sort({ createdAt: -1 });
 
     res.json(posts);
-  } catch (error) {
-    console.error("Error fetching user posts:", error);
-    res.status(500).json({ message: "Server error while fetching user posts" });
+  } catch (err) {
+    console.error("Get user posts error:", err);
+    res.status(500).json({ message: "Failed to load user posts" });
   }
 };
+
 
 // SAVE / UNSAVE POST
 const savePost = async (req, res) => {
