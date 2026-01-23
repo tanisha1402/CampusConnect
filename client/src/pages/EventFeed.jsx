@@ -32,7 +32,7 @@ export default function ResourceHub() {
       setPosts(res.data);
       setLoading(false);
     } catch (err) {
-      console.error("Error loading resources", err);
+      console.error("Error loading events", err);
     }
   };
 
@@ -40,7 +40,7 @@ export default function ResourceHub() {
     loadResources();
   }, []);
 
-  // 🔹 Create RESOURCE post
+  // 🔹 Create event post
   const handleCreatePost = async (e) => {
     e.preventDefault();
     if (!newPost.trim() && !file) return;
@@ -58,7 +58,7 @@ export default function ResourceHub() {
       setNewPost("");
       setFile(null);
     } catch (err) {
-      console.error("Error creating resource", err);
+      console.error("Error creating event", err);
     }
   };
 
@@ -220,7 +220,7 @@ const handleLike = async (postId) => {
 )}
         </div>
 
-        {/* Create resource */}
+        {/* Create event */}
         <div className="p-6 mb-8 bg-white border shadow-xl rounded-3xl border-indigo-200/50">
           <h2 className="mb-4 text-xl font-semibold">Post an Event</h2>
 
@@ -254,12 +254,12 @@ const handleLike = async (postId) => {
           </form>
         </div>
 
-        {/* Resource feed */}
+        {/* Event feed */}
         <div className="space-y-5">
           {loading ? (
             <p>Loading events...</p>
           ) : posts.length === 0 ? (
-            <p className="text-slate-500">No resources yet.</p>
+            <p className="text-slate-500">No Events yet.</p>
           ) : (
             posts.map((post) => (
               <div
@@ -349,7 +349,7 @@ const handleLike = async (postId) => {
                 {post.file?.type === "image" && (
                   <img
                     src={`http://localhost:5000${post.file.url}`}
-                    alt="resource upload"
+                    alt="event upload"
                     className="object-cover mt-3 border rounded-xl max-h-96"
                   />
                 )}
