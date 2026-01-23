@@ -31,6 +31,10 @@ const userSchema = new mongoose.Schema(
       default: "student"
     },
 
+    bio: { type: String, default: "" },
+
+    department: { type: String, default: "" },
+
     followers: [
       {
         type: mongoose.Schema.Types.ObjectId,

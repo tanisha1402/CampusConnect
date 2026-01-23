@@ -26,7 +26,11 @@ useEffect(() => {
   const loadProfile = async () => {
     try {
       const res = await axiosInstance.get("/users/me");
-      setForm(res.data);
+      setForm({
+  ...res.data,
+  avatarFile: null,
+});
+
 
       const postRes = await axiosInstance.get(`/posts/user/${res.data._id}`);
       setMyPosts(postRes.data);
@@ -47,8 +51,9 @@ useEffect(() => {
       setSaving(true);
       const res = await axiosInstance.put("/users/me", form);
 
-      // Update context user
-      setUser(res.data);
+// Update context user
+setUser(res.data);
+localStorage.setItem("user", JSON.stringify(res.data));
 
       setSaving(false);
       if (form.avatarFile) {
