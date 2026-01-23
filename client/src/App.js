@@ -17,6 +17,9 @@ import Chat from "./pages/Chat";
 import SavedPosts from "./pages/SavedPosts";
 import ResourceHub from "./pages/ResourceHub";
 import EventFeed from "./pages/EventFeed";
+import FollowingFeed from "./pages/FollowingFeed";
+import CommunitiesFeed from "./pages/CommunitiesFeed";
+
 
 function App() {
   return (
@@ -34,6 +37,8 @@ function App() {
   <Route path="/communities/:id" element={<CommunityPage />} />
   <Route path="/messages" element={<Inbox />} />
   <Route path="/messages/:id" element={<Chat />} />
+<Route path="/following" element={<FollowingFeed />} />
+<Route path="/communities-feed" element={<CommunitiesFeed />} />
 
   <Route path="/search" element={<Search />} />
   <Route path="/saved" element={<SavedPosts />} />
