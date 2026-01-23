@@ -48,7 +48,7 @@ export default function Chat() {
       <ChatBubble
         key={m._id}
         message={m}
-        isMe={m.sender === user._id}
+        isMe={m.sender?._id === user._id}
       />
     ))
   )}
