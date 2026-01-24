@@ -1,12 +1,15 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import NotificationBell from "./NotificationBell";
+import LogoutConfirmModal from "./LogoutConfirmModal";
 
 export default function TopNavbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useContext(AuthContext);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const navItems = [
     { label: "🏠", path: "/dashboard" },
@@ -70,16 +73,25 @@ export default function TopNavbar() {
 
   {/* LOGOUT */}
   <button
-    onClick={() => {
-  if (window.confirm("Log out of CampusConnect?")) {
-    logout();
-    navigate("/");
-  }
-}}
-    className="px-3 py-1 text-sm text-white bg-red-500 rounded-lg hover:bg-red-600"
-  >
-    Logout
-  </button>
+  onClick={() => setShowLogoutModal(true)}
+  className="px-3 py-1 text-sm text-white bg-red-500 rounded-lg hover:bg-red-600"
+>
+  Logout
+</button>
+{showLogoutModal && (
+  <LogoutConfirmModal
+    loading={loggingOut}
+    onCancel={() => setShowLogoutModal(false)}
+    onConfirm={() => {
+      setLoggingOut(true);
+      logout();
+      setLoggingOut(false);
+      setShowLogoutModal(false);
+      navigate("/");
+    }}
+  />
+)}
+
 </div>
 
 
