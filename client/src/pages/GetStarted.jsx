@@ -4,17 +4,25 @@ import { AuthContext } from "../context/AuthContext";
 
 export default function GetStarted() {
   const navigate = useNavigate();
-const { user } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
 
-useEffect(() => {
-  if (user) {
-    navigate("/dashboard");
-  }
-}, [user, navigate]);
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primarySoft via-lavender to-primarySoft flex items-center justify-center px-6">
-      <div className="max-w-3xl w-full bg-white shadow-2xl rounded-3xl p-10 text-center">
+    <div
+      className="min-h-screen flex items-center justify-center px-6 bg-cover bg-center relative"
+      style={{
+        backgroundImage: "url('/get-started-bg.jpg')",
+      }}
+    >
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-black/30"></div>
+
+      <div className="max-w-3xl w-full bg-white/90 backdrop-blur-md shadow-2xl rounded-3xl p-10 text-center relative z-10">
         <h1 className="text-4xl font-bold text-indigo-600">
           Welcome to CampusConnect
         </h1>
