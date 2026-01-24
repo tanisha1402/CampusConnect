@@ -5,7 +5,7 @@ import { AuthContext } from "../context/AuthContext";
 import TopNavbar from "../components/TopNavbar";
 
 export default function AppLayout() {
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [myCommunities, setMyCommunities] = useState([]);
 

@@ -6,7 +6,7 @@ import NotificationBell from "./NotificationBell";
 export default function TopNavbar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
 
   const navItems = [
     { label: "🏠", path: "/dashboard" },
@@ -47,26 +47,41 @@ export default function TopNavbar() {
         </div>
 
         {/* RIGHT */}
-        <div className="flex items-center gap-4 ml-auto">
-          <NotificationBell />
+       <div className="flex items-center gap-4 ml-auto">
+  <NotificationBell />
 
-          <div
-            className="cursor-pointer"
-            onClick={() => navigate("/profile")}
-          >
-            {user?.profilePic ? (
-              <img
-                src={`http://localhost:5000${user.profilePic}`}
-                alt="avatar"
-                className="object-cover w-9 h-9 rounded-full shadow"
-              />
-            ) : (
-              <div className="flex items-center justify-center w-9 h-9 font-semibold text-white bg-indigo-400 rounded-full">
-                {user?.name?.charAt(0)?.toUpperCase() || "U"}
-              </div>
-            )}
-          </div>
-        </div>
+  {/* PROFILE */}
+  <div
+    className="cursor-pointer"
+    onClick={() => navigate("/profile")}
+  >
+    {user?.profilePic ? (
+      <img
+        src={`http://localhost:5000${user.profilePic}`}
+        alt="avatar"
+        className="object-cover w-9 h-9 rounded-full shadow"
+      />
+    ) : (
+      <div className="flex items-center justify-center w-9 h-9 font-semibold text-white bg-indigo-400 rounded-full">
+        {user?.name?.charAt(0)?.toUpperCase() || "U"}
+      </div>
+    )}
+  </div>
+
+  {/* LOGOUT */}
+  <button
+    onClick={() => {
+  if (window.confirm("Log out of CampusConnect?")) {
+    logout();
+    navigate("/");
+  }
+}}
+    className="px-3 py-1 text-sm text-white bg-red-500 rounded-lg hover:bg-red-600"
+  >
+    Logout
+  </button>
+</div>
+
 
       </div>
     </div>
