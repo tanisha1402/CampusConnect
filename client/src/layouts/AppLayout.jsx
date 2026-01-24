@@ -9,6 +9,12 @@ export default function AppLayout() {
   const navigate = useNavigate();
   const [myCommunities, setMyCommunities] = useState([]);
 
+useEffect(() => {
+  if (!user) {
+    navigate("/");
+  }
+}, [user, navigate]);
+
   useEffect(() => {
     const loadMyCommunities = async () => {
       try {
