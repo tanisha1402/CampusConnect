@@ -93,7 +93,7 @@ localStorage.setItem("user", JSON.stringify(res.data));
           onSave={handleSave}
         />
 
-        <MyPosts posts={myPosts} />
+<MyPosts posts={myPosts} setPosts={setMyPosts} />
       </div>
 
     </div>

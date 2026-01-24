@@ -45,24 +45,26 @@ export default function MyPosts({ posts, setPosts }) {
     }
   };
 
- const handleLike = async (postId) => {
+const handleLike = async (postId) => {
   try {
     const res = await axiosInstance.post(`/posts/${postId}/like`);
 
+    // update list
     setPosts((prev) =>
       prev.map((p) =>
         p._id === postId ? { ...res.data, user: p.user } : p
       )
     );
 
-    // 🔥 keep modal post in sync too
-    if (activePost && activePost._id === postId) {
+    // 🔥 also update modal post if open
+    if (activePost?._id === postId) {
       setActivePost({ ...res.data, user: activePost.user });
     }
   } catch (err) {
     console.error("Error liking post", err);
   }
 };
+
 
 
   const openComments = (post) => {
@@ -79,18 +81,17 @@ const handleAddComment = async () => {
       { text: commentText }
     );
 
-    // 🔥 update modal post
+    // update modal post
     setActivePost({ ...res.data, user: activePost.user });
 
-    // 🔥 update posts list
+    // update list
     setPosts((prev) =>
       prev.map((p) =>
-        p._id === activePost._id
-          ? { ...res.data, user: p.user }
-          : p
+        p._id === activePost._id ? { ...res.data, user: p.user } : p
       )
     );
 
+    // 🔥 clear input
     setCommentText("");
   } catch (err) {
     console.error("Error adding comment", err);
@@ -98,26 +99,32 @@ const handleAddComment = async () => {
 };
 
 
+
   const handleEdit = async (postId) => {
-    if (!editText.trim()) return;
+  if (!editText.trim()) return;
 
-    try {
-      const res = await axiosInstance.put(`/posts/${postId}`, {
-        content: editText,
-      });
+  try {
+    const res = await axiosInstance.put(`/posts/${postId}`, {
+      content: editText,
+    });
 
-      setPosts((prev) =>
-        prev.map((p) =>
-          p._id === postId ? { ...res.data, user: p.user } : p
-        )
-      );
+    setPosts((prev) =>
+      prev.map((p) =>
+        p._id === postId ? { ...res.data, user: p.user } : p
+      )
+    );
 
-      setEditingPostId(null);
-      setEditText("");
-    } catch (err) {
-      console.error("Edit post error", err);
+    // 🔥 sync modal
+    if (activePost?._id === postId) {
+      setActivePost({ ...res.data, user: activePost.user });
     }
-  };
+
+    setEditingPostId(null);
+    setEditText("");
+  } catch (err) {
+    console.error("Edit post error", err);
+  }
+};
 
   const handleDelete = async () => {
     if (!deletePostId) return;
@@ -207,7 +214,7 @@ const handleAddComment = async () => {
                 {/* 3 DOT MENU */}
                 <PostOptionsMenu
                   post={post}
-                  currentUserId={user?._id}
+                  currentUserId={userId}
                   isSaved={isSaved(post)}
                   isFollowing={isFollowingUser(post.user._id)}
                   onSaveToggle={() => savePost(post._id)}
@@ -320,11 +327,16 @@ const handleAddComment = async () => {
 
             <div className="flex justify-between mt-4">
               <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-slate-300 rounded-xl"
-              >
-                Close
-              </button>
+  onClick={() => {
+    setShowModal(false);
+    setActivePost(null); // 🔥 reset modal post
+    setCommentText(""); // 🔥 reset input
+  }}
+  className="px-4 py-2 bg-slate-300 rounded-xl"
+>
+  Close
+</button>
+
 
               <button
                 onClick={handleAddComment}
