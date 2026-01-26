@@ -20,9 +20,14 @@ export default function CommunityPosts({ posts, setPosts }) {
 
   const handleLike = async (postId) => {
     const res = await axiosInstance.post(`/posts/${postId}/like`);
-    setPosts((prev) =>
-      prev.map((p) => (p._id === postId ? res.data : p))
-    );
+    setPosts(prev =>
+  prev.map(p =>
+    p._id === postId
+      ? { ...res.data, user: p.user }
+      : p
+  )
+);
+
   };
   const handleEdit = async (postId) => {
   if (!editText.trim()) return;
@@ -32,9 +37,14 @@ export default function CommunityPosts({ posts, setPosts }) {
       content: editText,
     });
 
-    setPosts((prev) =>
-      prev.map((p) => (p._id === postId ? res.data : p))
-    );
+    setPosts(prev =>
+  prev.map(p =>
+    p._id === postId
+      ? { ...res.data, user: p.user }
+      : p
+  )
+);
+
 
     setEditingPostId(null);
     setEditText("");
@@ -98,8 +108,13 @@ const savePost = async (postId) => {
   try {
     const res = await axiosInstance.post(`/posts/${postId}/save`);
     setPosts(prev =>
-  prev.map(p => (p._id === postId ? res.data : p))
+  prev.map(p =>
+    p._id === postId
+      ? { ...res.data, user: p.user }
+      : p
+  )
 );
+
   } catch (err) {
     console.error("Save post error", err);
   }
@@ -122,9 +137,18 @@ const savePost = async (postId) => {
          {/* USER HEADER + MENU */}
 <div className="flex items-start justify-between mb-2">
   <div className="flex items-center gap-3">
-    <div className="flex items-center justify-center w-10 h-10 font-semibold text-white bg-indigo-400 rounded-full">
-      {post.user?.name?.charAt(0)?.toUpperCase() || "U"}
-    </div>
+    {/* Avatar */}
+    {post.user?.profilePic ? (
+      <img
+        src={`http://localhost:5000${post.user.profilePic}`}
+        alt="avatar"
+        className="object-cover w-10 h-10 rounded-full shadow"
+      />
+    ) : (
+      <div className="flex items-center justify-center w-10 h-10 font-semibold text-white bg-indigo-400 rounded-full">
+        {post.user?.name?.charAt(0)?.toUpperCase() || "U"}
+      </div>
+    )}
 
     <div>
       <p
@@ -133,7 +157,6 @@ const savePost = async (postId) => {
       >
         {post.user?.name || "Unknown User"}
       </p>
-
       <p className="text-xs text-slate-500">
         {new Date(post.createdAt).toLocaleString()}
         {post.editedAt && (
@@ -190,17 +213,19 @@ const savePost = async (postId) => {
     </div>
   </div>
 ) : (
-  <p className="mt-2">{post.content}</p>
+  <p className="mt-2 whitespace-pre-wrap break-words leading-relaxed">
+  {post.content}
+</p>
 )}
 
 
               {/* FILE PREVIEW */}
               {post.file?.type === "image" && (
                 <img
-                  src={`http://localhost:5000${post.file.url}`}
-                  alt="post upload"
-                  className="object-cover mt-3 border rounded-xl max-h-96"
-                />
+  src={`http://localhost:5000${post.file.url}`}
+  alt="event upload"
+  className="w-full object-cover mt-3 border rounded-xl"
+/>
               )}
 
               {post.file?.type === "file" && (

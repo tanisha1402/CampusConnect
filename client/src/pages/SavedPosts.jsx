@@ -24,18 +24,55 @@ export default function SavedPosts() {
         posts.map((post) => (
           <div
             key={post._id}
-            className="p-4 bg-white shadow rounded-xl"
+            className="p-4 bg-white shadow rounded-xl space-y-2"
           >
-            <p
-              className="font-semibold text-indigo-600 cursor-pointer hover:underline"
+            {/* USER HEADER */}
+            <div
+              className="flex items-center gap-3 cursor-pointer"
               onClick={() => navigate(`/profile/${post.user._id}`)}
             >
-              {post.user.name}
-            </p>
+              {post.user.profilePic ? (
+                <img
+                  src={`http://localhost:5000${post.user.profilePic}`}
+                  alt={post.user.name}
+                  className="w-10 h-10 rounded-full object-cover shadow"
+                />
+              ) : (
+                <div className="flex items-center justify-center w-10 h-10 text-sm font-bold text-white bg-indigo-400 rounded-full">
+                  {post.user.name.charAt(0).toUpperCase()}
+                </div>
+              )}
 
-            <p className="mt-2">{post.content}</p>
+              <p className="font-semibold text-indigo-600 hover:underline">
+                {post.user.name}
+              </p>
+            </div>
 
-            <p className="mt-2 text-xs text-slate-500">
+            {/* POST CONTENT */}
+            <p className="mt-2 whitespace-pre-wrap break-words leading-relaxed">
+  {post.content}
+</p>
+               {/* 🔥 FILE PREVIEW (MISSING BEFORE) */}
+              {post.file?.type === "image" && (
+                <img
+  src={`http://localhost:5000${post.file.url}`}
+  alt="event upload"
+  className="w-full object-cover mt-3 border rounded-xl"
+/>
+              )}
+
+              {post.file?.type === "file" && (
+                <a
+                  href={`http://localhost:5000${post.file.url}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 mt-3 text-indigo-600 hover:underline"
+                >
+                  📎 {post.file.name}
+                </a>
+              )}
+
+            <p className="text-xs text-slate-500">
               {new Date(post.createdAt).toLocaleString()}
             </p>
           </div>

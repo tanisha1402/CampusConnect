@@ -13,9 +13,19 @@ export default function ConversationItem({ conversation, onClick }) {
       onClick={onClick}
       className="flex items-center gap-4 p-4 bg-white shadow cursor-pointer rounded-xl hover:bg-indigo-50"
     >
-      <div className="flex items-center justify-center w-12 h-12 text-lg font-bold text-white bg-indigo-500 rounded-full">
-        {otherUser.name.charAt(0).toUpperCase()}
-      </div>
+     {/* Avatar */}
+{otherUser.profilePic ? (
+  <img
+    src={`http://localhost:5000${otherUser.profilePic}`}
+    alt="avatar"
+    className="object-cover w-12 h-12 rounded-full shadow"
+  />
+) : (
+  <div className="flex items-center justify-center w-12 h-12 text-lg font-bold text-white bg-indigo-500 rounded-full">
+    {otherUser.name.charAt(0).toUpperCase()}
+  </div>
+)}
+
 
       <div className="flex-1">
         <p className="font-semibold">{otherUser.name}</p>

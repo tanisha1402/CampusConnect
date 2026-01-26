@@ -34,8 +34,12 @@ exports.getInbox = async (req, res) => {
     const conversations = await Conversation.find({
       participants: req.user.userId,
     })
-      .populate("participants", "name")
+      .populate("participants", "name profilePic")
       .populate("lastMessage")
+      .populate({
+    path: "lastMessage",
+    populate: { path: "sender", select: "name profilePic" },
+  })
       .sort({ updatedAt: -1 });
 
     const result = await Promise.all(
@@ -77,9 +81,10 @@ exports.getMessages = async (req, res) => {
       }
     );
 
-    const messages = await Message.find({
-      conversation: req.params.id,
-    }).sort("createdAt");
+    const messages = await Message.find({ conversation: req.params.id })
+  .sort({ createdAt: 1 })
+  .populate("sender", "name profilePic");
+
 
     res.json(messages);
   } catch (err) {
@@ -93,10 +98,17 @@ exports.getMessages = async (req, res) => {
 exports.sendMessage = async (req, res) => {
   try {
     const message = await Message.create({
-      conversation: req.params.id,
-      sender: req.user.userId, // ✅ FIXED
-      text: req.body.text,
-    });
+  conversation: req.params.id,
+  sender: req.user.userId,    // ✅ REQUIRED
+  text: req.body.text,
+});
+
+const populatedMessage = await message.populate(
+  "sender",
+  "name profilePic"
+);
+
+res.status(201).json(populatedMessage);
 
     await Conversation.findByIdAndUpdate(req.params.id, {
       lastMessage: message._id,

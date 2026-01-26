@@ -22,8 +22,13 @@ setActivePost(res.data);
 
 // ✅ update posts list
 setPosts(prev =>
-  prev.map(p => (p._id === post._id ? res.data : p))
+  prev.map(p =>
+    p._id === post._id
+      ? { ...res.data, user: p.user }
+      : p
+  )
 );
+
 
       setText("");
       setLoading(false);

@@ -67,15 +67,20 @@ const handleCreatePost = async (e) => {
 
   // Like post
   const handleLike = async (postId) => {
-    try {
-      const res = await axiosInstance.post(`/posts/${postId}/like`);
-      setPosts((prev) =>
-        prev.map((p) => (p._id === postId ? res.data : p))
-      );
-    } catch (err) {
-      console.error("Error liking post", err);
-    }
-  };
+  try {
+    const res = await axiosInstance.post(`/posts/${postId}/like`);
+    setPosts(prev =>
+      prev.map(p =>
+        p._id === postId
+          ? { ...res.data, user: p.user }
+          : p
+      )
+    );
+  } catch (err) {
+    console.error("Error liking post", err);
+  }
+};
+
 
   // Open comments
   const openComments = (post) => {
@@ -90,9 +95,13 @@ const handleCreatePost = async (e) => {
       content: editText,
     });
 
-    setPosts((prev) =>
-      prev.map((p) => (p._id === postId ? res.data : p))
-    );
+    setPosts(prev =>
+  prev.map(p =>
+    p._id === postId
+      ? { ...res.data, user: p.user }
+      : p
+  )
+);
 
     setEditingPostId(null);
     setEditText("");
@@ -113,9 +122,14 @@ const handleCreatePost = async (e) => {
       );
 
       setActivePost(res.data);
-      setPosts((prev) =>
-        prev.map((p) => (p._id === activePost._id ? res.data : p))
-      );
+     setPosts(prev =>
+  prev.map(p =>
+    p._id === activePost._id
+      ? { ...res.data, user: p.user }
+      : p
+  )
+);
+
       setCommentText("");
     } catch (err) {
       console.error("Error adding comment", err);
@@ -177,8 +191,13 @@ const savePost = async (postId) => {
   try {
     const res = await axiosInstance.post(`/posts/${postId}/save`);
     setPosts(prev =>
-  prev.map(p => (p._id === postId ? res.data : p))
+  prev.map(p =>
+    p._id === postId
+      ? { ...res.data, user: p.user }
+      : p
+  )
 );
+
 
   } catch (err) {
     console.error("Save post error", err);
@@ -197,26 +216,19 @@ const savePost = async (postId) => {
           <h1 className="text-2xl font-bold text-slate-800">
             Welcome, {user?.name}
           </h1>
-        {/* 🔔 Notifications */}
-  <NotificationBell />
-          <div className="flex items-center justify-center w-12 h-12 font-bold text-white bg-indigo-300 rounded-full shadow-md">
-            {user?.name?.charAt(0).toUpperCase()}
-          </div>
+          {user?.profilePic ? (
+  <img
+  src={`http://localhost:5000${user.profilePic}`}
+  alt="user avatar"
+  className="object-cover w-12 h-12 rounded-full shadow-md"
+/>
+) : (
+  <div className="flex items-center justify-center w-12 h-12 font-bold text-white bg-indigo-300 rounded-full shadow-md">
+    {user?.name?.charAt(0).toUpperCase()}
+  </div>
+)}
+
         </div>
-
-
-      {/* Communities actions */}
-      <div className="p-6 mb-8 bg-white border shadow-xl rounded-3xl border-indigo-200/50">
-        <h2 className="mb-4 text-xl font-bold text-indigo-600">Communities</h2>
-
-        <button
-          onClick={() => navigate("/communities/create")}
-          className="px-4 py-2 text-white transition bg-indigo-500 rounded-xl hover:bg-indigo-600"
-        >
-          Create Community
-        </button>
-      </div>
-
       {/* Create post */}
       <div className="p-6 mb-8 bg-white border shadow-xl rounded-3xl border-indigo-200/50">
         <h2 className="mb-4 text-xl font-semibold">Create a Post</h2>
@@ -264,11 +276,20 @@ const savePost = async (postId) => {
               className="p-5 bg-white border shadow-md rounded-2xl"
             >
              {/* POST HEADER + MENU */}
-<div className="flex items-start justify-between mb-3">
+<div className="flex items-start justify-between mb-2">
   <div className="flex items-center gap-3">
-    <div className="flex items-center justify-center w-10 h-10 font-semibold text-white bg-indigo-400 rounded-full">
-      {post.user?.name?.charAt(0)?.toUpperCase() || "U"}
-    </div>
+    {/* Avatar */}
+    {post.user?.profilePic ? (
+      <img
+        src={`http://localhost:5000${post.user.profilePic}`}
+        alt="avatar"
+        className="object-cover w-10 h-10 rounded-full shadow"
+      />
+    ) : (
+      <div className="flex items-center justify-center w-10 h-10 font-semibold text-white bg-indigo-400 rounded-full">
+        {post.user?.name?.charAt(0)?.toUpperCase() || "U"}
+      </div>
+    )}
 
     <div>
       <p
@@ -277,7 +298,6 @@ const savePost = async (postId) => {
       >
         {post.user?.name || "Unknown User"}
       </p>
-
       <p className="text-xs text-slate-500">
         {new Date(post.createdAt).toLocaleString()}
         {post.editedAt && (
@@ -332,17 +352,19 @@ const savePost = async (postId) => {
     </div>
   </div>
 ) : (
-  <p className="mt-2">{post.content}</p>
+  <p className="mt-2 whitespace-pre-wrap break-words leading-relaxed">
+  {post.content}
+</p>
 )}
 
 
 {/* FILE PREVIEW */}
 {post.file?.type === "image" && (
   <img
-    src={`http://localhost:5000${post.file.url}`}
-    alt="post upload"
-    className="object-cover mt-3 border rounded-xl max-h-96"
-  />
+  src={`http://localhost:5000${post.file.url}`}
+  alt="event upload"
+  className="w-full object-cover mt-3 border rounded-xl"
+/>
 )}
 {post.file?.type === "file" && (
   <a

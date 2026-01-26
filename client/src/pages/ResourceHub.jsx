@@ -63,16 +63,21 @@ export default function ResourceHub() {
   };
 
   // Like post
-  const handleLike = async (postId) => {
-    try {
-      const res = await axiosInstance.post(`/posts/${postId}/like`);
-      setPosts((prev) =>
-        prev.map((p) => (p._id === postId ? res.data : p))
-      );
-    } catch (err) {
-      console.error("Error liking post", err);
-    }
-  };
+const handleLike = async (postId) => {
+  try {
+    const res = await axiosInstance.post(`/posts/${postId}/like`);
+    setPosts(prev =>
+      prev.map(p =>
+        p._id === postId
+          ? { ...res.data, user: p.user }
+          : p
+      )
+    );
+  } catch (err) {
+    console.error("Error liking post", err);
+  }
+};
+
 
   // Open comments
   const openComments = (post) => {
@@ -88,9 +93,14 @@ export default function ResourceHub() {
         content: editText,
       });
 
-      setPosts((prev) =>
-        prev.map((p) => (p._id === postId ? res.data : p))
-      );
+     setPosts(prev =>
+  prev.map(p =>
+    p._id === postId
+      ? { ...res.data, user: p.user }
+      : p
+  )
+);
+
 
       setEditingPostId(null);
       setEditText("");
@@ -111,9 +121,14 @@ export default function ResourceHub() {
       );
 
       setActivePost(res.data);
-      setPosts((prev) =>
-        prev.map((p) => (p._id === activePost._id ? res.data : p))
-      );
+      setPosts(prev =>
+  prev.map(p =>
+    p._id === activePost._id
+      ? { ...res.data, user: p.user }
+      : p
+  )
+);
+
       setCommentText("");
     } catch (err) {
       console.error("Error adding comment", err);
@@ -166,9 +181,14 @@ export default function ResourceHub() {
   const savePost = async (postId) => {
     try {
       const res = await axiosInstance.post(`/posts/${postId}/save`);
-      setPosts((prev) =>
-        prev.map((p) => (p._id === postId ? res.data : p))
-      );
+      setPosts(prev =>
+  prev.map(p =>
+    p._id === postId
+      ? { ...res.data, user: p.user }
+      : p
+  )
+);
+
     } catch (err) {
       console.error("Save post error", err);
     }
@@ -186,9 +206,17 @@ export default function ResourceHub() {
             Resource Hub
           </h1>
 
-          <div className="flex items-center justify-center w-12 h-12 font-bold text-white bg-indigo-300 rounded-full shadow-md">
-            {user?.name?.charAt(0).toUpperCase()}
-          </div>
+              {user?.profilePic ? (
+  <img
+  src={`http://localhost:5000${user.profilePic}`}
+  alt="user avatar"
+  className="object-cover w-12 h-12 rounded-full shadow-md"
+/>
+) : (
+  <div className="flex items-center justify-center w-12 h-12 font-bold text-white bg-indigo-300 rounded-full shadow-md">
+    {user?.name?.charAt(0).toUpperCase()}
+  </div>
+)}
         </div>
 
         {/* Create resource */}
@@ -238,30 +266,39 @@ export default function ResourceHub() {
                 className="p-5 bg-white border shadow-md rounded-2xl"
               >
                 {/* POST HEADER */}
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-10 h-10 font-semibold text-white bg-indigo-400 rounded-full">
-                      {post.user?.name?.charAt(0)?.toUpperCase() || "U"}
-                    </div>
+               <div className="flex items-start justify-between mb-2">
+  <div className="flex items-center gap-3">
+    {/* Avatar */}
+    {post.user?.profilePic ? (
+      <img
+        src={`http://localhost:5000${post.user.profilePic}`}
+        alt="avatar"
+        className="object-cover w-10 h-10 rounded-full shadow"
+      />
+    ) : (
+      <div className="flex items-center justify-center w-10 h-10 font-semibold text-white bg-indigo-400 rounded-full">
+        {post.user?.name?.charAt(0)?.toUpperCase() || "U"}
+      </div>
+    )}
 
-                    <div>
-                      <p
-                        className="font-semibold text-indigo-600 cursor-pointer hover:underline"
-                        onClick={() => navigate(`/profile/${post.user._id}`)}
-                      >
-                        {post.user?.name}
-                      </p>
+    <div>
+      <p
+        className="font-semibold text-indigo-600 cursor-pointer hover:underline"
+        onClick={() => navigate(`/profile/${post.user._id}`)}
+      >
+        {post.user?.name || "Unknown User"}
+      </p>
+      <p className="text-xs text-slate-500">
+        {new Date(post.createdAt).toLocaleString()}
+        {post.editedAt && (
+          <span className="ml-1 italic text-slate-400">
+            (edited {new Date(post.editedAt).toLocaleString()})
+          </span>
+        )}
+      </p>
+    </div>
+  </div>
 
-                      <p className="text-xs text-slate-500">
-  {new Date(post.createdAt).toLocaleString()}
-  {post.editedAt && (
-    <span className="ml-1 italic text-slate-400">
-      (edited {new Date(post.editedAt).toLocaleString()})
-    </span>
-  )}
-</p>
-                    </div>
-                  </div>
 
                   <PostOptionsMenu
                     post={post}
@@ -304,16 +341,18 @@ export default function ResourceHub() {
                     </div>
                   </div>
                 ) : (
-                  <p className="mt-2">{post.content}</p>
+                  <p className="mt-2 whitespace-pre-wrap break-words leading-relaxed">
+  {post.content}
+</p>
                 )}
 
                 {/* FILE PREVIEW */}
                 {post.file?.type === "image" && (
                   <img
-                    src={`http://localhost:5000${post.file.url}`}
-                    alt="resource upload"
-                    className="object-cover mt-3 border rounded-xl max-h-96"
-                  />
+  src={`http://localhost:5000${post.file.url}`}
+  alt="event upload"
+  className="w-full object-cover mt-3 border rounded-xl"
+/>
                 )}
                 {post.file?.type === "file" && (
                   <a
